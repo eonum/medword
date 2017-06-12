@@ -9,10 +9,15 @@ create the following data structure:
     '.../medword/data/'
         /medword/data/embeddings/
         /medword/data/train_data/
+        /medword/data/validation_data/
 
+#### train data:
 get the 'wiki_data' folder  (*.txt files) from Arun, place them into the folder train_data
 (the train_data itself may contain any subdirectories, eg. 'wiki_data', 'wiki_data/unlabeled/'
 or 'wiki_data/positives/')
+
+#### validation data:
+get validation data from Fabian
 
 
 ### script settings (medword_pipeline.py)
@@ -25,4 +30,5 @@ TRAIN_NEW_MODEL = True
 
 ## run the following statement
 python medword_pipeline.py
+
 

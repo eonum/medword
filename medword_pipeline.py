@@ -15,7 +15,7 @@ importlib.reload(mv)
 COMPUTE_NEW_TRAIN_DATA = False
 
 # if you want to train a new word2vec model from your train_data file
-TRAIN_NEW_MODEL = True
+TRAIN_NEW_MODEL = False
 
 # directory
 DATA_DIR = 'data/embeddings/'

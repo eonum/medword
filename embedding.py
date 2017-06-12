@@ -1,12 +1,19 @@
 import word2vec
+import multiprocessing
+
 from subprocess import call
 
 
 def make_emb_from_file(train_fp, emb_model_fp):
 
+    # embedding parameters
+    emb_dim = 400   # embedding vector dimension
+    min_count = 5   # minimum number a token has to appear to be included in model
+    n_cores = multiprocessing.cpu_count()
+
     print("Start training the model.")
-    word2vec.word2vec( train_fp, emb_model_fp, size=400, window=5, sample='1e-3', hs=0,
-                        negative=5, threads=1, iter_=5, min_count=1, alpha=0.025,
+    word2vec.word2vec( train_fp, emb_model_fp, size=emb_dim, window=5, sample='1e-5', hs=0,
+                        negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
                         debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
                         verbose=False)
 
@@ -43,7 +50,7 @@ def make_emb_from_file(train_fp, emb_model_fp):
         binary <int>
             Save the resulting vectors in binary moded; default is 0 (off)
         cbow <int>
-            Use the continuous back of words model; default is 1 (skip-gram
+            Use the continuous bag of words model; default is 1 (skip-gram
             model)
         save_vocab <file>
             The vocabulary will be saved to <file>

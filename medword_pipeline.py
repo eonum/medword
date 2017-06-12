@@ -10,11 +10,17 @@ importlib.reload(pp)
 importlib.reload(embedding)
 importlib.reload(mv)
 
-# script settings
-compute_new_train_data = True
+### script settings ###
+# if you want to produce a new train_data file from your data directory
+COMPUTE_NEW_TRAIN_DATA = False
+
+# if you want to train a new word2vec model from your train_data file
+TRAIN_NEW_MODEL = True
 
 # directory
-DATA_DIR = '/Users/Fabian/Developer/eonum/Coding/medword/data/embeddings/'
+DATA_DIR = 'data/embeddings/'
+pp.make_directory('data', 'embeddings')
+
 
 # filenames
 train_data_fn = 'train.txt'
@@ -26,12 +32,14 @@ emb_model_fp = os.path.join(DATA_DIR, emb_model_fn)
 
 
 # compute new train data if needed
-if (compute_new_train_data):
+if (COMPUTE_NEW_TRAIN_DATA):
     pp.create_train_data(train_fp)
 
 
 # train embeddings using word2vec
-embedding.make_emb_from_file(train_fp, emb_model_fp)
+if (TRAIN_NEW_MODEL):
+    embedding.make_emb_from_file(train_fp, emb_model_fp)
+
 
 # validate the embedding model
 model = mv.validate_model(emb_model_fp)

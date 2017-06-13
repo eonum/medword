@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 This file should contain functions for the following operations:
 - load data from raw txt format (in German)
@@ -10,9 +12,12 @@ import os
 import fnmatch
 import re
 from nltk.stem.snowball import GermanStemmer
+import nltk.data
+from nltk.corpus import stopwords
+import itertools
 
-DATA_DIR = 'data/train_data/'
-#DATA_DIR = 'data/data_small/'
+# DATA_DIR = 'data/train_data/'
+DATA_DIR = 'data/data_small/'
 
 
 class SimpleTokenizer():
@@ -35,6 +40,45 @@ class SimpleGermanTokenizer(SimpleTokenizer):
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
 
+class GWETokenizer():
+    # https://github.com/devmount/GermanWordEmbeddings/blob/master/preprocessing.py
+    def tokenize(self, s):
+        # punctuation and stopwords
+        punctuation_tokens = ['.', '..', '...', ',', ';', ':', '(', ')', '"', '\'', '[', ']', '{', '}', '?', '!', '-',
+                              u'–', '+', '*', '--', '\'\'', '``']
+        punctuation = '?.!/;:()&+'
+        stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
+
+        # sentence detector
+        sentence_detector = nltk.data.load('tokenizers/punkt/german.pickle')
+        sentences = sentence_detector.tokenize(s)
+
+        output = []
+        for sentence in sentences:
+            # replace umlauts
+            sentence = self.replace_umlauts(sentence)
+            # get word tokens
+            words = nltk.word_tokenize(sentence)
+            # filter punctuation and stopwords
+            words = [x for x in words if x not in punctuation_tokens]
+            words = [re.sub('[' + punctuation + ']', '', x) for x in words]
+            #words = [x for x in words if x not in stop_words]
+            output.append(words)
+
+        return list(itertools.chain.from_iterable(output))
+
+    def replace_umlauts(self, text):
+        res = text
+        res = res.replace(u'ä', 'ae')
+        res = res.replace(u'ö', 'oe')
+        res = res.replace(u'ü', 'ue')
+        res = res.replace(u'Ä', 'Ae')
+        res = res.replace(u'Ö', 'Oe')
+        res = res.replace(u'Ü', 'Ue')
+        res = res.replace(u'ß', 'ss')
+        return res
+
+
 def make_directory(base_directory, new_subdirectory):
     new_subdir_path = os.path.join(base_directory, new_subdirectory)
     if not os.path.exists(new_subdir_path):
@@ -48,10 +92,12 @@ def get_tokens_from_file(file, tokenizer):
     file.seek(0)  # reset file iterator
     data = file.read().replace('\n', '')
     tokens = tokenizer.tokenize(data)
+    print(str(file))
+    print(tokens)
     return tokens
 
 
-def tokens_from_dir(directory):
+def tokens_from_dir(directory, tokenizer):
     """
     creates
     - tokenSet: a set of tokens using all *.txt files of any subdirectory of 'directory'
@@ -60,41 +106,19 @@ def tokens_from_dir(directory):
     print("Making tokenSet from directory '", directory, "'")
     tokenSet = set()
     tokenList = []
-    sgt = SimpleGermanTokenizer()
+
 
     # iterate over all .txt files
     for dirpath, dirs, files in os.walk(directory):
         for filename in fnmatch.filter(files, '*.txt'):
             with open(os.path.join(dirpath, filename), 'r') as file:
                 # create tokens from each file
-                tokens = get_tokens_from_file(file, sgt)
+                tokens = get_tokens_from_file(file, tokenizer)
                 tokenList.append(tokens)
                 tokenSet |= set(tokens)
                 file.close()
 
     return tokenSet, tokenList
-
-
-# def create_token_datastructs():
-#
-#     tokenSet, tokenList = tokens_from_dir(DATA_DIR)
-#
-#     # Create look-up structures to get token-index from from token
-#     # (used to find index of embedding vector for given token)
-#
-#     # look-up dictionary [token -> index]
-#     token_indx_dic = {}
-#     # look-up list [index -> token]
-#     indx_token_list = []
-#
-#     i = 0
-#     for t in sorted(tokenSet): # maybe sort if needed
-#         token_indx_dic[t] = i
-#         indx_token_list.append(t)
-#         i += 1
-#
-#     # TODO maybe remove token_indx_dic, and indx_token_list as not used so far
-#     return tokenSet, tokenList, token_indx_dic, indx_token_list
 
 
 def create_train_data(train_fp):
@@ -106,7 +130,10 @@ def create_train_data(train_fp):
     # Create needed token-datastructures
     # - tokenSet: each token appears only once
     # - tokenList: entire data of stemmed tokens, each item is a list of all tokens of an article
-    tokenSet, tokenList = tokens_from_dir(DATA_DIR)
+    sgt = SimpleGermanTokenizer()
+    gwe = GWETokenizer()
+
+    tokenSet, tokenList = tokens_from_dir(DATA_DIR, gwe)
 
     total_tokens = sum([len(item) for item in tokenList])
 

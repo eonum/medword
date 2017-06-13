@@ -7,7 +7,7 @@ from random import randint
 # data names and paths
 VAL_DIR = 'data/validation_data/'
 DF_FILE = 'german_doesntfit1.txt'
-SYN_FILE = 'german_synonymes1.txt'
+SYN_FILE = 'german_synonymes3.txt'
 
 
 def validate_model(model_fp):
@@ -125,7 +125,7 @@ def test_synonymes(model, filepath, n_closest_words=10):
     sgt = pp.SimpleGermanTokenizer()
 
     # get questions
-    with open(filepath) as f:
+    with open(filepath, 'r') as f:
         questions = f.read().splitlines()
         tk_questions = [sgt.tokenize(q) for q in questions]
 
@@ -165,8 +165,8 @@ def test_synonymes(model, filepath, n_closest_words=10):
     # calculate result
     avg_cosine_similarity_synonymes = (cos_sim_sum_synonymes / num_questions) if num_questions>0 else 0.0
     correct_matches = np.round(num_right/(2*np.float(num_questions))*100, 1) if num_questions>0 else 0.0
-
     coverage = np.round(num_questions/np.float(num_lines)*100, 1) if num_lines>0 else 0.0
+
     # log result
     print("Synonymes: {0} pairs in input. {1} pairs in model-vocabulary.".format(str(num_lines), str(num_questions)))
     print("\n*** Cosine-Similarity ***")

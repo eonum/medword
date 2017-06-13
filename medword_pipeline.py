@@ -12,7 +12,7 @@ importlib.reload(mv)
 
 ### script settings ###
 # if you want to produce a new train_data file from your data directory
-COMPUTE_NEW_TRAIN_DATA = False
+COMPUTE_NEW_TRAIN_DATA = True
 
 # if you want to train a new word2vec model from your train_data file
 TRAIN_NEW_MODEL = False
@@ -23,7 +23,7 @@ pp.make_directory('data', 'embeddings')
 
 
 # filenames
-train_data_fn = 'train.txt'
+train_data_fn = 'train_trial.txt'
 emb_model_fn = 'emb_model.bin'
 
 # paths for train_data and output files

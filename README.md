@@ -4,15 +4,32 @@ Tools to create and evaluate word vector embeddings for medical language.
 ## Getting started
 
 ### data
+
 create the following data structure:
 
     '.../medword/data/'
+
         /medword/data/embeddings/
-        /medword/data/train_data/
         /medword/data/validation_data/
 
+        /medword/data/train_data/
+        /medword/data/train_data/raw_data/
+
+### data_dev
+if you want to develop on a smaller raw_data set, create the same data structure under
+
+    '.../medword/dev_data/'
+
+        /medword/dev_data/embeddings/
+        /medword/dev_data/validation_data/
+
+        /medword/dev_data/train_data/
+        /medword/dev_data/train_data/raw_data/
+
+and use smaller raw_data.
+
 #### train data:
-get the 'wiki_data' folder  (*.txt files) from Arun, place them into the folder train_data
+get the 'wiki_data' folder  (*.txt files) from Arun, place them into the folder 'raw_data'
 (the train_data itself may contain any subdirectories, eg. 'wiki_data', 'wiki_data/unlabeled/'
 or 'wiki_data/positives/')
 
@@ -20,15 +37,26 @@ or 'wiki_data/positives/')
 get validation data from Fabian
 
 
-### script settings (medword_pipeline.py)
+## adapt the configuration file (configuration.json)
 #### if you want to produce a new train_data file from your data directory
-COMPUTE_NEW_TRAIN_DATA = True
+"compute_new_data": true
+
 
 #### if you want to train a new word2vec model from your train_data file
-TRAIN_NEW_MODEL = True
+"train_new_model": true
+
+##
 
 
 ## run the following statement
 python medword_pipeline.py
+
+
+## usefull commands for configuration update
+
+with open('configuration.json', 'w') as f:
+    json.dump(config.config, f, indent=4)
+
+config.config = json.load(open('configuration.json', 'r'))
 
 

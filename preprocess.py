@@ -16,8 +16,15 @@ import nltk.data
 from nltk.corpus import stopwords
 import itertools
 
-# DATA_DIR = 'data/train_data/'
-DATA_DIR = 'data/data_small/'
+
+# # edit script settings if needed
+# config.config['tokenizer'] = 'sgt'
+
+#
+# write it back to the file
+# with open('configuration.json', 'w') as f:
+#     json.dump(config.config, f, indent=4)
+
 
 
 class SimpleTokenizer():
@@ -121,19 +128,27 @@ def tokens_from_dir(directory, tokenizer):
     return tokenSet, tokenList
 
 
-def create_train_data(train_fp):
+def create_train_data(train_data_src, raw_data_dir, config):
 
     print("Creating new training data. ")
 
-    # create needed directories TODO
+    ### create needed directories TODO
 
-    # Create needed token-datastructures
+    ### Create needed token-datastructures
+    tk = config.config['tokenizer']
+
+    if tk == 'sgt':
+        tokenizer = SimpleGermanTokenizer()
+    elif tk == 'gwe':
+        tokenizer = GWETokenizer()
+    else:
+        # Default
+        print("Warining: Couldn't find specified tokenizer. Continuing with default tokenizer. ")
+        tokenizer = SimpleGermanTokenizer()
+
     # - tokenSet: each token appears only once
     # - tokenList: entire data of stemmed tokens, each item is a list of all tokens of an article
-    sgt = SimpleGermanTokenizer()
-    gwe = GWETokenizer()
-
-    tokenSet, tokenList = tokens_from_dir(DATA_DIR, gwe)
+    tokenSet, tokenList = tokens_from_dir(raw_data_dir, tokenizer)
 
     total_tokens = sum([len(item) for item in tokenList])
 
@@ -149,7 +164,7 @@ def create_train_data(train_fp):
         article_list.append(a)
 
     # safe training data to file
-    train_file = open(train_fp, 'w')
+    train_file = open(train_data_src, 'w')
 
     for item in article_list:
         train_file.write("%s\n" % item)

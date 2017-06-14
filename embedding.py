@@ -4,18 +4,24 @@ import multiprocessing
 from subprocess import call
 
 
-def make_emb_from_file(train_fp, emb_model_fp):
+def make_emb_from_file(train_data_src, emb_model_src, config):
 
-    # embedding parameters
-    emb_dim = 400   # embedding vector dimension
-    min_count = 5   # minimum number a token has to appear to be included in model
+    ### embedding parameters
+
+    # embedding vector dimension
+    emb_dim = config.config['embedding_vector_dim']
+
+    # minimum number a token has to appear to be included in model
+    min_count = config.config['min_token_appearance']
+
+    # number of cores
     n_cores = multiprocessing.cpu_count()
 
     print("Start training the model.")
-    word2vec.word2vec( train_fp, emb_model_fp, size=emb_dim, window=5, sample='1e-5', hs=0,
-                        negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
-                        debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
-                        verbose=False)
+    word2vec.word2vec(train_data_src, emb_model_src, size=emb_dim, window=5, sample='1e-5', hs=0,
+                      negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
+                      debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
+                      verbose=False)
 
     """
     word2vec execution

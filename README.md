@@ -5,7 +5,7 @@ Tools to create and evaluate word vector embeddings for medical language.
 
 ### data
 
-create the following data structure:
+#### create the following data structure:
 
     '.../medword/data/'
 

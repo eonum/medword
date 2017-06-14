@@ -3,6 +3,22 @@ Tools to create and evaluate word vector embeddings for medical language.
 
 ## Getting started
 
+### configuration
+
+change the filename 'configuration.json.example' to 'configuration.json'
+
+#### adapt the configuration file (configuration.json) if needed
+
+if you want to produce a new train_data file from your data directory
+
+    "compute_new_data": true
+
+
+if you want to train a new word2vec model from your train_data file
+
+    "train_new_model": true
+
+
 ### data
 
 #### create the following data structure:
@@ -15,7 +31,7 @@ Tools to create and evaluate word vector embeddings for medical language.
         /medword/data/train_data/
         /medword/data/train_data/raw_data/
 
-### Developper Mode:
+#### Developper Mode:
 
 if you want to develop on a smaller raw_data set:
 
@@ -45,16 +61,6 @@ or 'wiki_data/positives/')
 get validation data from Fabian
 
 
-## adapt the configuration file (configuration.json)
-#### if you want to produce a new train_data file from your data directory
-
-    "compute_new_data": true
-
-
-#### if you want to train a new word2vec model from your train_data file
-
-    "train_new_model": true
-
 
 ## run the following statement
 
@@ -63,9 +69,14 @@ get validation data from Fabian
 
 ## usefull commands for configuration update
 
-with open('configuration.json', 'w') as f:
-    json.dump(config.config, f, indent=4)
+    config.config = json.load(open('configuration.json', 'r'))
 
-config.config = json.load(open('configuration.json', 'r'))
+    config.config['attribute'] = new_value
+
+    with open('configuration.json', 'w') as f:
+        json.dump(config.config, f, indent=4)
+
+
+
 
 

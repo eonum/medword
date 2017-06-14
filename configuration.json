@@ -5,7 +5,7 @@
     "embedding_model_filename": "emb_model.bin",
     "embedding_vector_dim": 400,
     "min_token_appearance": 5,
-    "running_mode": "normal",
+    "running_mode": "develop",
     "tokenizer": "sgt",
     "train_data_filename": "train.txt",
     "train_new_model": false,

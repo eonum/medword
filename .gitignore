@@ -125,6 +125,7 @@ dev_data/
 .idea/
 
 # configuration file
-configuration.json
+/configuration.json
+
 
 

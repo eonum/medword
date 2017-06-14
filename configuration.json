@@ -4,7 +4,7 @@
     "config_path": "configuration.json",
     "embedding_model_filename": "emb_model.bin",
     "embedding_vector_dim": 400,
-    "min_token_appearance": 5,
+    "min_token_appearance": 4,
     "running_mode": "develop",
     "tokenizer": "sgt",
     "train_data_filename": "train.txt",

@@ -28,7 +28,7 @@ import itertools
 
 
 class TokenizerBase():
-    def split_to_words(self, s, delimiter='[.,?!:; ]'):
+    def split_to_words(self, s, delimiter='[.,?!:; {}()"\[" "\]"" "\n"]'):
         l = re.split(delimiter, s)
         l = [v for v in l if v != ''] #remove all empty strings
         return l
@@ -62,9 +62,10 @@ class NonStemmingTokenizer(TokenizerBase):
     # https://github.com/devmount/GermanWordEmbeddings/blob/master/preprocessing.py
     def tokenize(self, s):
         # punctuation and stopwords
-        punctuation_tokens = ['.', '..', '...', ',', ';', ':', '(', ')', '"', '\'', '[', ']', '{', '}', '?', '!', '-',
-                              u'–', '+', '*', '--', '\'\'', '``']
-        punctuation = '?.!/;:()&+'
+        punctuation_tokens = ['.', '..', '...', ',', ';', ':', '(', ')', '"', u'„', '„', u'“', '“', '\'',
+                              '[', ']', '{', '}', '?', '!', '-', u'–', '+', '*', '--', '\'\'', '``']
+
+        punctuation = '?.!/;:()&+"\n"'
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
 
         # replace umlauts
@@ -73,6 +74,17 @@ class NonStemmingTokenizer(TokenizerBase):
         words = nltk.word_tokenize(s)
         # filter punctuation and stopwords
         words = [x for x in words if x not in punctuation_tokens]
+
+        # function to remove all punctuations at the beginning of a word
+        def remove_start_punct(word):
+            while word and (word[0] in punctuation_tokens):
+                word = word[1:]
+            return word
+
+        # remove all punctuations at the beginning of a word
+        words = [remove_start_punct(x) for x in words]
+
+        # remove all undesired punctuations at any location
         words = [re.sub('[' + punctuation + ']', '', x) for x in words]
         words = [x.lower() for x in words]
 

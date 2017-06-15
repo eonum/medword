@@ -4,15 +4,19 @@ import re
 
 
 def load_config():
+
     parser = OptionParser()
     parser.add_option("-c", "--config", dest="config", help="specify configuration file")
     (options, args) = parser.parse_args()
 
     if not options.config:
         options.config = 'configuration.json'
-    
+
     config = Configuration(options.config)
     return config
+
+
+
 
 
 class Configuration(object):
@@ -56,5 +60,3 @@ class Configuration(object):
     def __getitem__(self, item):
         return self.parse(self.config[item])
 
-
-__CONFIG__ = load_config()

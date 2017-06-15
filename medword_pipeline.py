@@ -1,4 +1,4 @@
-from shared.load_config import __CONFIG__
+from shared.load_config import load_config
 
 import os
 import importlib
@@ -35,7 +35,7 @@ def run(config):
     # data directories
     if(config.config['running_mode'] == 'develop'):
         print('Running in DEVELOPPER mode.')
-        base_data_dir = 'dev_data/'
+        base_data_dir = config.config['develop_base_data_dir']
     else:
         print('Running in NORMAL mode.')
         base_data_dir = config.config['base_data_dir']
@@ -72,7 +72,7 @@ def run(config):
     return model
 
 if __name__ == '__main__':
-
-    run(__CONFIG__)
+    __CONFIG__ = load_config()
+    model = run(__CONFIG__)
     print("end_main")
 

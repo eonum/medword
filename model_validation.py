@@ -33,12 +33,10 @@ def validate_model(model_fp, config):
 #### Doesn't Fit Validation ####
 
 def cosine_similarity(model, w1, w2):
-    # note that embedding vecores are already normalized:
-    # v1 = model[w1] / np.linalg.norm(model[w1],2)
-    # v2 = model[w2] / np.linalg.norm(model[w2],2)
 
-    v1 = model[w1]
-    v2 = model[w2]
+    v1 = model[w1] / np.linalg.norm(model[w1],2)
+    v2 = model[w2] / np.linalg.norm(model[w2],2)
+
     return np.dot(v1, v2)
 
 

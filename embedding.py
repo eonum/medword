@@ -23,6 +23,8 @@ def make_emb_from_file(train_data_src, emb_model_src, config):
                       debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
                       verbose=False)
 
+    print("Training finsihed. \nModel saved at:", emb_model_src)
+
     """
     word2vec execution
     Parameters for training:

@@ -12,19 +12,20 @@ def validate_model(model_fp, config):
     print("Start validation. Loading model. \n")
 
     val_dir = os.path.join(config.config['base_data_dir'], 'validation_data/')
-    df_file = config.config['doesntfit_file']
-    syn_file = config.config['synonyms_file']
+    doesntfit_fn = config.config['doesntfit_file']
+    synonyms_fn = config.config['synonyms_file']
 
     # load model
     model = w2v.load(model_fp)
 
     # test with doesn't fit questions
-    val_file_path = os.path.join(val_dir, df_file)
-    test_doesntfit(model, val_file_path)
+    val_file_src = os.path.join(val_dir, doesntfit_fn)
+    test_doesntfit(model, val_file_src, config)
 
     # test with synonyms
-    syn_file_path = os.path.join(val_dir, syn_file)
-    test_synonyms(model, syn_file_path, 40)
+    n_closest_words = config.config["synonyms_numb_closest_vec"]
+    syn_file_src = os.path.join(val_dir, synonyms_fn)
+    test_synonyms(model, syn_file_src, n_closest_words, config)
 
     return model #TODO remove return value, only used for development
 
@@ -63,7 +64,7 @@ def doesntfit(model, word_list):
 
     return sorted(zip(dists, used_words))[0][1]
 
-def test_doesntfit(model, filepath):
+def test_doesntfit(model, file_src, config):
     """
     - tests all doesntfit-questions (lines) of file
     - a doesnt-fit question is of the format "word_1 word_2 ... word_N word_NotFitting"
@@ -72,18 +73,19 @@ def test_doesntfit(model, filepath):
         eg. "Auto Motorrad Fahrrad Ampel"
 
     """
-    print("Validating 'doesntfit' with file", filepath)
+    print("Validating 'doesntfit' with file", file_src)
 
-    num_lines = sum(1 for line in open(filepath))
+    num_lines = sum(1 for line in open(file_src))
     num_questions = 0
     num_right = 0
-    sgt = pp.SimpleGermanTokenizer()
+
+    tokenizer = pp.get_tokenizer(config)
 
 
     # get questions
-    with open(filepath) as f:
+    with open(file_src) as f:
         questions = f.read().splitlines()
-        tk_questions = [sgt.tokenize(q) for q in questions]
+        tk_questions = [tokenizer.tokenize(q) for q in questions]
 
     # test each question
     for question in tk_questions:
@@ -105,7 +107,7 @@ def test_doesntfit(model, filepath):
 
 
 #### Synonyms Validation ####
-def test_synonyms(model, filepath, n_closest_words=10):
+def test_synonyms(model, file_src, n_closest_words, config):
     """
     - tests all synonym-questions (lines) of file
     - a synonym-question is of the format "word_1 word_2"
@@ -117,19 +119,19 @@ def test_synonyms(model, filepath, n_closest_words=10):
     - for each synonym-pair TWO CHECKS are made therefore (non-symmetric problem)
 
     """
-    print("Validating 'synonyms' with file", filepath)
+    print("Validating 'synonyms' with file", file_src)
 
-    num_lines = sum(1 for line in open(filepath))
+    num_lines = sum(1 for line in open(file_src))
     num_questions = 0
     cos_sim_sum_synonyms = 0
     num_right = 0
 
-    sgt = pp.SimpleGermanTokenizer()
+    tokenizer = pp.get_tokenizer(config)
 
     # get questions
-    with open(filepath, 'r') as f:
+    with open(file_src, 'r') as f:
         questions = f.read().splitlines()
-        tk_questions = [sgt.tokenize(q) for q in questions]
+        tk_questions = [tokenizer.tokenize(q) for q in questions]
 
     # test each question
     for tk_quest in tk_questions:
@@ -175,7 +177,7 @@ def test_synonyms(model, filepath, n_closest_words=10):
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))
     print("\n*** Synonym Recognition ***")
-    print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors"
+    print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors."
           "checked per word.".format(str(correct_matches), str(num_right), str(2*num_questions), str(n_closest_words)))
     print("Synonyms coverage: {0}% ({1}/{2})\n".format(str(coverage), str(2*num_questions), str(2*num_lines), ))
 

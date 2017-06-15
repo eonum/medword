@@ -1,7 +1,7 @@
 import os
 import json
 
-def prepare_base_folder(config):
+def prepare_folders(config):
     {
         # TODO preparing foldes
 

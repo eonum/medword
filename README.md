@@ -47,9 +47,11 @@ if you want to develop on a smaller raw_data set:
 
     and use smaller raw_data.
 
-2)  change in the configuration.json file the entry "running_mode" to "develop"
+2)  change in the configuration.json file the entry "running_mode" from "normal" to "develop"
 
-        "running_mode": "develop"
+        replace "running_mode": "normal"
+
+        with    "running_mode": "develop"
 
 
 #### train data:

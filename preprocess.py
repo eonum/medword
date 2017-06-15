@@ -27,14 +27,25 @@ import itertools
 
 
 
-class SimpleTokenizer():
+class TokenizerBase():
     def split_to_words(self, s, delimiter='[.,?!:; ]'):
         l = re.split(delimiter, s)
         l = [v for v in l if v != ''] #remove all empty strings
         return l
 
+    def replace_umlauts(self, text):
+        res = text
+        res = res.replace(u'ä', 'ae')
+        res = res.replace(u'ö', 'oe')
+        res = res.replace(u'ü', 'ue')
+        res = res.replace(u'Ä', 'Ae')
+        res = res.replace(u'Ö', 'Oe')
+        res = res.replace(u'Ü', 'Ue')
+        res = res.replace(u'ß', 'ss')
+        return res
 
-class SimpleGermanTokenizer(SimpleTokenizer):
+
+class SimpleGermanTokenizer(TokenizerBase):
     def tokenize(self, s):
         words = self.split_to_words(s)
         stemmed_words = self.stem_words(words)
@@ -47,43 +58,38 @@ class SimpleGermanTokenizer(SimpleTokenizer):
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
 
-class GWETokenizer():
+class NonStemmingTokenizer(TokenizerBase):
     # https://github.com/devmount/GermanWordEmbeddings/blob/master/preprocessing.py
     def tokenize(self, s):
         # punctuation and stopwords
         punctuation_tokens = ['.', '..', '...', ',', ';', ':', '(', ')', '"', '\'', '[', ']', '{', '}', '?', '!', '-',
                               u'–', '+', '*', '--', '\'\'', '``']
         punctuation = '?.!/;:()&+'
-        stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
+        # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
 
+        # replace umlauts
+        s = self.replace_umlauts(s)
+        # get word tokens
+        words = nltk.word_tokenize(s)
+        # filter punctuation and stopwords
+        words = [x for x in words if x not in punctuation_tokens]
+        words = [re.sub('[' + punctuation + ']', '', x) for x in words]
+        words = [x.lower() for x in words]
+
+        # words = [x for x in words if x not in stop_words]
+
+        return words
+
+
+class SentenceExtractor():
+    # not used so far
+    # idea from https://github.com/devmount/GermanWordEmbeddings/blob/master/preprocessing.py
+    def extract_sentences(self, s):
         # sentence detector
         sentence_detector = nltk.data.load('tokenizers/punkt/german.pickle')
         sentences = sentence_detector.tokenize(s)
 
-        output = []
-        for sentence in sentences:
-            # replace umlauts
-            sentence = self.replace_umlauts(sentence)
-            # get word tokens
-            words = nltk.word_tokenize(sentence)
-            # filter punctuation and stopwords
-            words = [x for x in words if x not in punctuation_tokens]
-            words = [re.sub('[' + punctuation + ']', '', x) for x in words]
-            #words = [x for x in words if x not in stop_words]
-            output.append(words)
-
-        return list(itertools.chain.from_iterable(output))
-
-    def replace_umlauts(self, text):
-        res = text
-        res = res.replace(u'ä', 'ae')
-        res = res.replace(u'ö', 'oe')
-        res = res.replace(u'ü', 'ue')
-        res = res.replace(u'Ä', 'Ae')
-        res = res.replace(u'Ö', 'Oe')
-        res = res.replace(u'Ü', 'Ue')
-        res = res.replace(u'ß', 'ss')
-        return res
+        return sentences
 
 
 def make_directory(base_directory, new_subdirectory):
@@ -99,8 +105,7 @@ def get_tokens_from_file(file, tokenizer):
     file.seek(0)  # reset file iterator
     data = file.read().replace('\n', '')
     tokens = tokenizer.tokenize(data)
-    print(str(file))
-    print(tokens)
+
     return tokens
 
 
@@ -128,6 +133,21 @@ def tokens_from_dir(directory, tokenizer):
     return tokenSet, tokenList
 
 
+def get_tokenizer(config):
+    tk = config.config['tokenizer']
+
+    if tk == 'sgt':
+        tokenizer = SimpleGermanTokenizer()
+    elif tk == 'nst':
+        tokenizer = NonStemmingTokenizer()
+    else:
+        # Default
+        print("Warining: Couldn't find specified tokenizer. Continuing with default tokenizer. ")
+        tokenizer = NonStemmingTokenizer()
+
+    return tokenizer
+
+
 def create_train_data(train_data_src, raw_data_dir, config):
 
     print("Creating new training data. ")
@@ -135,16 +155,9 @@ def create_train_data(train_data_src, raw_data_dir, config):
     ### create needed directories TODO
 
     ### Create needed token-datastructures
-    tk = config.config['tokenizer']
+    tokenizer = get_tokenizer(config)
 
-    if tk == 'sgt':
-        tokenizer = SimpleGermanTokenizer()
-    elif tk == 'gwe':
-        tokenizer = GWETokenizer()
-    else:
-        # Default
-        print("Warining: Couldn't find specified tokenizer. Continuing with default tokenizer. ")
-        tokenizer = SimpleGermanTokenizer()
+    print("Using this Tokenizer: ", str(tokenizer.__class__).split('.')[1].split("'")[0])
 
     # - tokenSet: each token appears only once
     # - tokenList: entire data of stemmed tokens, each item is a list of all tokens of an article

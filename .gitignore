@@ -128,4 +128,5 @@ dev_data/
 /configuration.json
 
 
-
+# LiClipse
+.project

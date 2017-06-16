@@ -1,4 +1,6 @@
-from shared.load_config import load_config
+# from shared.load_config import load_config
+from shared.load_config import __CONFIG__
+
 
 import os
 import importlib
@@ -14,7 +16,11 @@ importlib.reload(embedding)
 importlib.reload(mv)
 
 
-def run(config):
+
+
+# config = __CONFIG__
+
+def run_pipeline(config):
 
     # # edit script settings if needed
     # config.config['running_mode'] = 'normal'
@@ -64,7 +70,7 @@ def run(config):
 
     # train embeddings using word2vec
     if (TRAIN_NEW_MODEL):
-        embedding.make_emb_from_file(train_data_src, emb_model_src, config)
+        embedding.make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config)
 
     # validate the embedding model
     model = mv.validate_model(emb_model_src, config)
@@ -72,7 +78,8 @@ def run(config):
     return model
 
 if __name__ == '__main__':
-    __CONFIG__ = load_config()
-    model = run(__CONFIG__)
+
+    model = run_pipeline(__CONFIG__) #TODO remove return value, only for development
     print("end_main")
+
 

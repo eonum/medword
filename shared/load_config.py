@@ -7,6 +7,9 @@ def load_config():
 
     parser = OptionParser()
     parser.add_option("-c", "--config", dest="config", help="specify configuration file")
+
+    # need to be present for ipython notebook, not sure why.
+    parser.add_option("-f", "--file", dest="file", help="specify configuration file")
     (options, args) = parser.parse_args()
 
     if not options.config:
@@ -14,8 +17,6 @@ def load_config():
 
     config = Configuration(options.config)
     return config
-
-
 
 
 
@@ -60,3 +61,5 @@ class Configuration(object):
     def __getitem__(self, item):
         return self.parse(self.config[item])
 
+
+__CONFIG__ = load_config()

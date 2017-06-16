@@ -1,6 +1,7 @@
 {
     "base_data_dir": "data/",
     "develop_base_data_dir": "dev_data/",
+    "val_data_dir": "data/validation_data/",
     "compute_new_data": true,
     "config_path": "configuration.json",
     "embedding_model_filename": "emb_model_1506.bin",

@@ -3,15 +3,16 @@ import numpy as np
 import preprocess as pp
 import os
 from random import randint
-
-# data names and paths
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 
 def validate_model(model_fp, config):
     print("Start validation. Loading model. \n")
 
-    val_dir = os.path.join(config.config['base_data_dir'], 'validation_data/')
+    val_dir = config.config['val_data_dir']
     doesntfit_fn = config.config['doesntfit_file']
     synonyms_fn = config.config['synonyms_file']
 
@@ -181,10 +182,64 @@ def test_synonyms(model, file_src, n_closest_words, config):
 
 
 #### Visualization ####
-def visualize_word(model, word):
-    {
-        # TODO
-    }
+def visualize_words(model, word_list, n_nearest_neighbours):
+
+    # get indexes and words that you want to visualize
+    words_to_visualize = []
+    word_indexes_to_visualize = []
+
+    # get all words and neighbors that you want to visualize
+    for word in word_list:
+        if word not in model:
+            continue
+        words_to_visualize.append(word)
+        word_indexes_to_visualize.append(model.ix(word))
+
+        # get neighbours of word
+        indexes, metrics = model.cosine(word, n_nearest_neighbours)
+
+        neighbours = model.vocab[indexes]
+        words_to_visualize.extend(neighbours)
+        word_indexes_to_visualize.extend(indexes)
+
+    # get vectors from indexes to visualize
+    emb_vectors = model.vectors[word_indexes_to_visualize]
+
+    # project down to 2D
+    tsne = TSNE(n_components=2, random_state=0)
+    np.set_printoptions(suppress=True)
+    emb_vec_2D = tsne.fit_transform(emb_vectors)
+
+    n_inputs = len(word_list)
+
+    for i in range(n_inputs):
+
+        # group word and it's neighbours together (results in different color in plot)
+        lower = i*n_nearest_neighbours + i
+        upper = (i+1)*n_nearest_neighbours + (i+1)
+
+        # plot 2D
+        plt.scatter(emb_vec_2D[lower:upper, 0], emb_vec_2D[lower:upper, 1])
+        for label, x, y in zip(words_to_visualize, emb_vec_2D[:, 0], emb_vec_2D[:, 1]):
+            plt.annotate(label, xy=(x, y), xytext=(0, 0), textcoords='offset points')
+
+    # find nice axes for plot
+    lower_x = min(emb_vec_2D[:, 0])
+    upper_x = max(emb_vec_2D[:, 0])
+    lower_y = min(emb_vec_2D[:, 1])
+    upper_y = max(emb_vec_2D[:, 1])
+
+    # 10% of padding on all sides
+    pad_x = 0.1 * abs(upper_x - lower_x)
+    pad_y = 0.1 * abs(upper_y - lower_y)
+
+    plt.xlim([lower_x - pad_x, upper_x + pad_x])
+    plt.ylim([lower_y - pad_y, upper_y + pad_y])
+
+    plt.show()
+
+
+
 
 
 

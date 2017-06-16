@@ -35,12 +35,11 @@ if you want to train a new word2vec model from your train_data file
 
 if you want to develop on a smaller raw_data set:
 
-1)  create the same data structure under
+1)  create the same data structure (without validation_data folder) under
 
         '.../medword/dev_data/'
 
             /medword/dev_data/embeddings/
-            /medword/dev_data/validation_data/
 
             /medword/dev_data/train_data/
             /medword/dev_data/train_data/raw_data/

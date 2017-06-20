@@ -189,7 +189,7 @@ def create_train_data(train_data_src, raw_data_dir, config):
         article_list.append(a)
 
     # safe training data to file
-    train_file = open(train_data_src, 'w')
+    train_file = open(train_data_src, 'w+')
 
     for item in article_list:
         train_file.write("%s\n" % item)

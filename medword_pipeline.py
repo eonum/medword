@@ -16,10 +16,6 @@ importlib.reload(embedding)
 importlib.reload(mv)
 
 
-
-
-# config = __CONFIG__
-
 def run_pipeline(config):
 
     # # edit script settings if needed
@@ -29,7 +25,6 @@ def run_pipeline(config):
     # write it back to the file
     # with open('configuration.json', 'w') as f:
     #     json.dump(config.config, f, indent=4)
-
 
     ### script settings ###
     # if you want to produce a new train_data file from your data directory
@@ -42,9 +37,12 @@ def run_pipeline(config):
     if(config.config['running_mode'] == 'develop'):
         print('Running in DEVELOPPER mode.')
         base_data_dir = config.config['develop_base_data_dir']
-    else:
+    elif(config.config['running_mode'] == 'normal'):
         print('Running in NORMAL mode.')
         base_data_dir = config.config['base_data_dir']
+    else:
+        print("Running mode not recognized: set running_mode to 'normal' or 'develop'")
+        return None
 
     emb_model_dir = os.path.join(base_data_dir, 'embeddings/')
     train_data_dir = os.path.join(base_data_dir, 'train_data/')

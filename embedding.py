@@ -2,7 +2,8 @@ import word2vec
 import multiprocessing
 import os
 import json
-
+from subprocess import call, PIPE, run, Popen
+import sys
 
 def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
 
@@ -20,12 +21,49 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
     # embedding model source
     emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
+    # downsampling high occurence
+    sample_freq = 1e-5
+
 
     print("Start training the model.")
-    word2vec.word2vec(train_data_src, emb_model_src, size=emb_dim, window=5, sample='1e-5', hs=0,
-                      negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
-                      debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
-                      verbose=False)
+    # word2vec.word2vec(train_data_src, emb_model_src, size=emb_dim, window=5, sample=, hs=0,
+    #                   negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
+    #                   debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
+    #                   verbose=False)
+
+    command = ["word2vec", "-train", train_data_src, "-output", emb_model_src,
+          "-binary", "1", "-cbow", '1',  "-size", str(emb_dim), "-sample", str(sample_freq),
+          "-min-count", str(min_count), "-threads", str(n_cores)]
+
+    # Open pipe to subprocess
+    proc = Popen(command, stdout=PIPE, stderr=PIPE)
+
+
+    # parse output of subprocess
+    while proc.poll() is None:
+        for c in iter(lambda: proc.stdout.read(1) if proc.poll() is None else {}, b''):
+            c = c.decode('ascii')
+            sys.stdout.write(c)
+
+    # i = ''
+    # result_list = []
+    # while proc.poll() == None:
+    #     i = proc.stdout.read(1)
+    #
+    #     char = str(i).split("'")[1]
+    #     result_list.append(char)
+    #     while str(i) != "b'\\n'" and str(i) != "b'\\r'" and proc.poll() == None:
+    #         i = proc.stdout.read(1)
+    #         char = str(i).split("'")[1]
+    #         result_list.append(char)
+    #         # print(char)
+    #     if result_list != []:
+    #         if "".join(result_list[-1:]) == "\\r":
+    #             end = '\r'
+    #         else:
+    #             end = '\n'
+    #         print("".join(result_list[:-2]), end=end)
+    #         result_list = []
 
 
     filename, ext = os.path.splitext(emb_model_fn)

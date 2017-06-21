@@ -13,6 +13,7 @@ import fnmatch
 import re
 from nltk.stem.snowball import GermanStemmer
 import nltk
+import sys
 from nltk.corpus import stopwords
 
 
@@ -121,14 +122,17 @@ def tokens_from_dir(directory, tokenizer):
     - tokenSet: a set of tokens using all *.txt files of any subdirectory of 'directory'
     - tokenList: a list-of-lists containing all files as tokenized strings (each item is a list of all tokens found in one file)
     """
-    print("Making tokenSet from directory '", directory, "'")
+    print("Read and tokenize data from directory '", directory, "'")
     tokenSet = set()
     tokenList = []
 
-
+    n = 0
     # iterate over all .txt files
     for dirpath, dirs, files in os.walk(directory):
         for filename in fnmatch.filter(files, '*.txt'):
+            n += 1
+            sys.stdout.write( "Reading File "+ str(n) + '\r')
+
             with open(os.path.join(dirpath, filename), 'r') as file:
                 # create tokens from each file
                 tokens = get_tokens_from_file(file, tokenizer)

@@ -12,20 +12,13 @@ import os
 import fnmatch
 import re
 from nltk.stem.snowball import GermanStemmer
-import nltk.data
+import nltk
 from nltk.corpus import stopwords
-import itertools
 
 
-# # edit script settings if needed
-# config.config['tokenizer'] = 'sgt'
-
-#
-# write it back to the file
-# with open('configuration.json', 'w') as f:
-#     json.dump(config.config, f, indent=4)
-
-
+def setup():
+    # setup needed libraries, directories etc. TODO directories
+    nltk.download('punkt')
 
 class TokenizerBase():
     def split_to_words(self, s, delimiter='[.,?!:; {}()"\[" "\]"" "\n"]'):
@@ -88,6 +81,7 @@ class NonStemmingTokenizer(TokenizerBase):
         words = [re.sub('[' + punctuation + ']', '', x) for x in words]
         words = [x.lower() for x in words]
 
+        # remove stopwords TODO activate maybe
         # words = [x for x in words if x not in stop_words]
 
         return words

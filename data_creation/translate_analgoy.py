@@ -23,8 +23,6 @@ def translate_file(input_src, output_src):
 
 
 
-
-
 def make_translation():
     # source paths for files
     syn_raw_src = os.path.join(DATADIR, analogy_raw_fn)

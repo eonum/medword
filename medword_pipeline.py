@@ -18,6 +18,8 @@ importlib.reload(mv)
 
 def run_pipeline(config):
 
+    pp.setup()
+
     # # edit script settings if needed
     # config.config['running_mode'] = 'normal'
     # config.config['running_mode'] = 'develop'

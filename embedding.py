@@ -36,18 +36,57 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
           "-min-count", str(min_count), "-threads", str(n_cores)]
 
     # Open pipe to subprocess
-    subprocess = Popen(command, stdout=PIPE, stderr=PIPE)
+    proc = Popen(command, stdout=PIPE, stderr=PIPE)
+
+    i = ''
+    result_list = []
 
 
-    # parse output of subprocess
-    while subprocess.poll() is None:
-        for c in iter(lambda: subprocess.stdout.read(1) if subprocess.poll() is None else {}, b''):
-            c = c.decode('ascii')
-            sys.stdout.write(c)
-    sys.stdout.flush()
+    while proc.poll() == None:
 
-    if subprocess.returncode != 0:
-        raise Exception("The training could not be completed.")
+        while proc.poll() == None:
+            i = proc.stdout.read(1).decode('ascii')
+            result_list.append(i)
+            if i == "\n" or i == "\r":
+                break
+
+        if result_list != []:
+            #print(result_list, i)
+            print("".join(result_list), end="")
+            result_list = []
+
+
+    # while proc.poll() == None:
+    #     while i == '\n' or i == '\r':
+    #         i = proc.stdout.read(1).decode('ascii')
+    #     result_list.append(i)
+    #     while i != "\n" and i != "\r" and proc.poll() == None:
+    #         i = proc.stdout.read(1).decode('ascii')
+    #         result_list.append(i)
+    #
+    #     if result_list != []:
+    #         #print(result_list, i)
+    #         print("".join(result_list), end="")
+    #         result_list = []
+
+
+    # while proc.poll() == None:
+    #     i = proc.stdout.read(1)
+    #
+    #     char = str(i).split("'")[1]
+    #     result_list.append(char)
+    #     while str(i) != "b'\\n'" and str(i) != "b'\\r'" and proc.poll() == None:
+    #         i = proc.stdout.read(1)
+    #         char = str(i).split("'")[1]
+    #         result_list.append(char)
+    #         # print(char)
+    #     if result_list != []:
+    #         if "".join(result_list[-1:]) == "\\r":
+    #             end = '\r'
+    #         else:
+    #             end = '\n'
+    #         print("".join(result_list[:-2]), end=end)
+    #         result_list = []
 
 
     filename, ext = os.path.splitext(emb_model_fn)

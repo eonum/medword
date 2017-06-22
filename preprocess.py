@@ -80,6 +80,8 @@ class NonStemmingTokenizer(TokenizerBase):
 
         # remove all undesired punctuations at any location
         words = [re.sub('[' + punctuation + ']', '', x) for x in words]
+
+        # process words
         words = [x.lower() for x in words]
 
         # remove stopwords TODO activate maybe

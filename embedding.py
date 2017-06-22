@@ -36,34 +36,18 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
           "-min-count", str(min_count), "-threads", str(n_cores)]
 
     # Open pipe to subprocess
-    proc = Popen(command, stdout=PIPE, stderr=PIPE)
+    subprocess = Popen(command, stdout=PIPE, stderr=PIPE)
 
 
     # parse output of subprocess
-    while proc.poll() is None:
-        for c in iter(lambda: proc.stdout.read(1) if proc.poll() is None else {}, b''):
+    while subprocess.poll() is None:
+        for c in iter(lambda: subprocess.stdout.read(1) if subprocess.poll() is None else {}, b''):
             c = c.decode('ascii')
             sys.stdout.write(c)
+    sys.stdout.flush()
 
-    # i = ''
-    # result_list = []
-    # while proc.poll() == None:
-    #     i = proc.stdout.read(1)
-    #
-    #     char = str(i).split("'")[1]
-    #     result_list.append(char)
-    #     while str(i) != "b'\\n'" and str(i) != "b'\\r'" and proc.poll() == None:
-    #         i = proc.stdout.read(1)
-    #         char = str(i).split("'")[1]
-    #         result_list.append(char)
-    #         # print(char)
-    #     if result_list != []:
-    #         if "".join(result_list[-1:]) == "\\r":
-    #             end = '\r'
-    #         else:
-    #             end = '\n'
-    #         print("".join(result_list[:-2]), end=end)
-    #         result_list = []
+    if subprocess.returncode != 0:
+        raise Exception("The training could not be completed.")
 
 
     filename, ext = os.path.splitext(emb_model_fn)

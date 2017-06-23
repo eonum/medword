@@ -58,10 +58,10 @@ class NonStemmingTokenizer(TokenizerBase):
         # punctuation and stopwords
         punctuation_tokens = ['.', '..', '...', ',', ';', ':', '"', u'„', '„', u'“', '“', '\'',
                               '[', ']', '{', '}', '(', ')', '<', '>', '?', '!', '-', u'–', '+',
-                              '*', '--', '\'\'', '``']
+                              '*', '--', '\'\'', '``', '‚', '‘','\n']
 
         punctuation = ['?', '.', '!', '/', ';', ':', '(', ')', '&', '\n']
-        split_chars = ['-', '/', '\\', '+']
+        split_chars = ['-', '/', '\\\\', '+']
 
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
 
@@ -88,7 +88,8 @@ class NonStemmingTokenizer(TokenizerBase):
 
 
 
-        # function to remove all punctuations at the beginning of a word
+        # functions to remove all punctuations at the beginning and end of a word
+        # (in case something in the nltk.word_tokenize() was left over)
         def remove_start_punct(word):
             while word and (word[0] in punctuation_tokens):
                 word = word[1:]
@@ -145,31 +146,39 @@ def get_tokens_from_file(file, tokenizer):
     return tokens
 
 
-def tokens_from_dir(directory, tokenizer):
+def tokens_from_dir(directory, tokenizer, train_file):
     """
-    creates
-    - tokenSet: a set of tokens using all *.txt files of any subdirectory of 'directory'
-    - tokenList: a list-of-lists containing all files as tokenized strings (each item is a list of all tokens found in one file)
+    - creates tokens using all *.txt files of any subdirectory of 'directory'
+    - stores them in train_file
     """
     print("Read and tokenize data from directory '", directory, "'")
     tokenSet = set()
-    tokenList = []
-
-    n = 0
+    total_tokens = 0
+    n_files = 0
     # iterate over all .txt files
     for dirpath, dirs, files in os.walk(directory):
         for filename in fnmatch.filter(files, '*.txt'):
-            n += 1
-            sys.stdout.write( "Reading File "+ str(n) + '\r')
+            n_files += 1
+            sys.stdout.write( "Reading File "+ str(n_files) + '\r')
 
             with open(os.path.join(dirpath, filename), 'r') as file:
                 # create tokens from each file
                 tokens = get_tokens_from_file(file, tokenizer)
-                tokenList.append(tokens)
+
+                # append token_string to train_file
+                token_string = " ".join(tokens) + " \n"
+
+                train_file.write(token_string)
+
+                # build set of all tokens and count total number of found tokens
                 tokenSet |= set(tokens)
+                total_tokens += len(tokens)
+
                 file.close()
 
-    return tokenSet, tokenList
+
+    print("Found %d different tokens in %d articles, total training size: %d tokens."
+          % (len(tokenSet), n_files, total_tokens))
 
 
 def get_tokenizer(config):
@@ -198,28 +207,12 @@ def create_train_data(train_data_src, raw_data_dir, config):
 
     print("Using this Tokenizer: ", str(tokenizer.__class__).split('.')[1].split("'")[0])
 
-    # - tokenSet: each token appears only once
-    # - tokenList: entire data of stemmed tokens, each item is a list of all tokens of an article
-    tokenSet, tokenList = tokens_from_dir(raw_data_dir, tokenizer)
-
-    total_tokens = sum([len(item) for item in tokenList])
-
-    print("Found %d different tokens in %d articles, total training size: %d tokens."
-          % (len(tokenSet), len(tokenList), total_tokens))
-
-    # Create training-file from tokenList.
-    # Each item of article_list should contain an entire article.
-    # Tokens are separated with a single whitespace ' '.
-    article_list = []
-    for l in tokenList:
-        a = ' '.join(l)
-        article_list.append(a)
-
-    # safe training data to file
+    # open training data file
     train_file = open(train_data_src, 'w+')
 
-    for item in article_list:
-        train_file.write("%s\n" % item)
+    # Create tokens from raw_data_dir and store them in train_file
+    tokens_from_dir(raw_data_dir, tokenizer, train_file)
 
+    # close training date file
     train_file.close()
 

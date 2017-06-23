@@ -176,8 +176,8 @@ def test_synonyms(model, file_src, n_closest_words, config):
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))
     print("\n*** Synonym Recognition ***")
-    print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors."
-          "checked per word.".format(str(correct_matches), str(num_right), str(2*num_questions), str(n_closest_words)))
+    print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors "
+          "per word.".format(str(correct_matches), str(num_right), str(2*num_questions), str(n_closest_words)))
     print("Synonyms coverage: {0}% ({1}/{2})\n".format(str(coverage), str(2*num_questions), str(2*num_lines), ))
 
 

@@ -66,6 +66,10 @@ get validation data from Fabian
 ## run the following statement
 
     python medword_pipeline.py
+    
+## interactive mode with IPython notebook
+
+    ipython notebook validation_interactive.ipynb
 
 
 ## usefull commands for configuration update

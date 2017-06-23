@@ -2,8 +2,7 @@ import word2vec
 import multiprocessing
 import os
 import json
-from subprocess import call, PIPE, run, Popen
-import sys
+from subprocess import PIPE, Popen
 
 def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
 
@@ -38,55 +37,19 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
     # Open pipe to subprocess
     proc = Popen(command, stdout=PIPE, stderr=PIPE)
 
-    i = ''
     result_list = []
 
+    while proc.poll() is None:
 
-    while proc.poll() == None:
-
-        while proc.poll() == None:
+        while proc.poll() is None:
             i = proc.stdout.read(1).decode('ascii')
             result_list.append(i)
             if i == "\n" or i == "\r":
                 break
 
         if result_list != []:
-            #print(result_list, i)
             print("".join(result_list), end="")
             result_list = []
-
-
-    # while proc.poll() == None:
-    #     while i == '\n' or i == '\r':
-    #         i = proc.stdout.read(1).decode('ascii')
-    #     result_list.append(i)
-    #     while i != "\n" and i != "\r" and proc.poll() == None:
-    #         i = proc.stdout.read(1).decode('ascii')
-    #         result_list.append(i)
-    #
-    #     if result_list != []:
-    #         #print(result_list, i)
-    #         print("".join(result_list), end="")
-    #         result_list = []
-
-
-    # while proc.poll() == None:
-    #     i = proc.stdout.read(1)
-    #
-    #     char = str(i).split("'")[1]
-    #     result_list.append(char)
-    #     while str(i) != "b'\\n'" and str(i) != "b'\\r'" and proc.poll() == None:
-    #         i = proc.stdout.read(1)
-    #         char = str(i).split("'")[1]
-    #         result_list.append(char)
-    #         # print(char)
-    #     if result_list != []:
-    #         if "".join(result_list[-1:]) == "\\r":
-    #             end = '\r'
-    #         else:
-    #             end = '\n'
-    #         print("".join(result_list[:-2]), end=end)
-    #         result_list = []
 
 
     filename, ext = os.path.splitext(emb_model_fn)

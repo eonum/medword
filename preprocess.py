@@ -56,18 +56,37 @@ class NonStemmingTokenizer(TokenizerBase):
     # https://github.com/devmount/GermanWordEmbeddings/blob/master/preprocessing.py
     def tokenize(self, s):
         # punctuation and stopwords
-        punctuation_tokens = ['.', '..', '...', ',', ';', ':', '(', ')', '"', u'„', '„', u'“', '“', '\'',
-                              '[', ']', '{', '}', '?', '!', '-', u'–', '+', '*', '--', '\'\'', '``']
+        punctuation_tokens = ['.', '..', '...', ',', ';', ':', '"', u'„', '„', u'“', '“', '\'',
+                              '[', ']', '{', '}', '(', ')', '<', '>', '?', '!', '-', u'–', '+',
+                              '*', '--', '\'\'', '``']
 
-        punctuation = '?.!/;:()&+"\n"'
+        punctuation = ['?', '.', '!', '/', ';', ':', '(', ')', '&', '\n']
+        split_chars = ['-', '/', '\\', '+']
+
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
+
 
         # replace umlauts
         s = self.replace_umlauts(s)
         # get word tokens
         words = nltk.word_tokenize(s)
-        # filter punctuation and stopwords
+
+        # filter punctuation tokens
         words = [x for x in words if x not in punctuation_tokens]
+
+        # remove stopwords
+        # words = [x for x in words if x not in stop_words]
+
+        # split words at defined characters
+        delimiters = '[' + "".join(split_chars) + ']'
+
+        flat_words = []
+        for x in words:
+            flat_words.extend(re.split(delimiters, x))
+
+        words = flat_words
+
+
 
         # function to remove all punctuations at the beginning of a word
         def remove_start_punct(word):
@@ -75,11 +94,19 @@ class NonStemmingTokenizer(TokenizerBase):
                 word = word[1:]
             return word
 
-        # remove all punctuations at the beginning of a word
+        def remove_end_puntc(word):
+            while word and (word[-1] in punctuation_tokens):
+                word = word[:-1]
+            return word
+
+
+
+        # remove all punctuations at the beginning and ending of a word
         words = [remove_start_punct(x) for x in words]
+        words = [remove_end_puntc(x) for x in words]
 
         # remove all undesired punctuations at any location
-        words = [re.sub('[' + punctuation + ']', '', x) for x in words]
+        words = [re.sub('[' + "".join(punctuation) + ']', '', x) for x in words]
 
         # process words
         words = [x.lower() for x in words]

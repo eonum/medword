@@ -64,7 +64,7 @@ def run_pipeline(config):
 
     # compute new train data if needed
     if (COMPUTE_NEW_TRAIN_DATA):
-        raw_data_dir = os.path.join(train_data_dir, 'raw_data/wiki_data/positive/')
+        raw_data_dir = os.path.join(train_data_dir, 'raw_data/')
         pp.create_train_data(train_data_src, raw_data_dir, config)
 
 

@@ -19,16 +19,16 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
 
     def train_model(self, train_data_src, emb_model_dir, emb_model_fn):
-        print("Embedding Algorithm: fastText")
+        print("\nEmbedding Algorithm: fastText")
 
         ft_path = self.config.config['fasttext_source']
-        output_filename = os.path.join(emb_model_dir, emb_model_fn)
+        emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
         # train model
         self._model = FastText.train(ft_path=ft_path, corpus_file=train_data_src)
 
         # save model
-        FastText.save(self._model, output_filename)
+        FastText.save(self._model, emb_model_src)
 
         # save configuration
         filename, ext = os.path.splitext(emb_model_fn)
@@ -38,11 +38,13 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
         with open(config_src, 'w') as f:
             json.dump(self.config.config, f, indent=4)
 
+        print("Training finsihed. \nModel saved at:", emb_model_src)
+
 
 
     def similarity(self, word1, word2):
         if not self._model:
-            print("Model not defined. Train or load a _model.")
+            print("Model not defined. Train or load a model.")
             return ReferenceError
 
         return self._model.wv.similarity(word1, word2)
@@ -50,7 +52,7 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
     def most_similar_n(self, word, n=10):
         if not self._model:
-            print("Model not defined. Train or load a _model.")
+            print("Model not defined. Train or load a model.")
             return ReferenceError
 
         return self._model.wv.similar_by_word(word, n)
@@ -62,11 +64,25 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
 
     def get_vocab(self):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
         return self._model.wv.index2word
 
 
     def word_vec(self, word):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
         return self._model.wv.word_vec(word)
+
+
+
+
+
+
 
 
 

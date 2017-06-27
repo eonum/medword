@@ -1,4 +1,5 @@
 import multiprocessing
+import numpy as np
 import os
 import json
 from subprocess import PIPE, Popen
@@ -13,22 +14,42 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         self.config = config
 
     def word_vec(self, word):
-        self._model.get_vector(word)
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        return self._model.get_vector(word)
 
     def get_vocab(self):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
         return self._model.vocab.tolist()
 
-    def most_similar_n(self, word, n):
+    def most_similar_n(self, word, n=10):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
         indexes, metrics = self._model.cosine(word, n)
         return self._model.generate_response(indexes, metrics).tolist()
 
 
     def similarity(self, word1, word2):
-        super().similarity(word1, word2)
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        v1 = self._model[word1] / np.linalg.norm(self._model[word1], 2)
+        v2 = self._model[word2] / np.linalg.norm(self._model[word2], 2)
+
+        return np.dot(v1, v2)
+
 
     def train_model(self, train_data_src, emb_model_dir, emb_model_fn):
 
-        print("Embedding Algorithm: word2vec")
+        print("\nEmbedding Algorithm: word2vec")
 
         ### embedding parameters
 

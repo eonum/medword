@@ -6,22 +6,30 @@ import os
 import importlib
 import json
 
+
 import preprocess as pp
-import model_validation_word2vec as mv
+import embedding_fasttext
+import embedding_word2vec
+import model_validation as mv
 
 # reload imported modules, as older versions are cached (developing purpose)
 importlib.reload(pp)
 importlib.reload(mv)
-
+importlib.reload(embedding_fasttext)
+importlib.reload(embedding_word2vec)
 
 def run_pipeline(config):
 
+    # setup needed libraries, data structures etc.
     pp.setup()
 
+    # choose the embedding algorithm
     implementation = config['embedding_algorithm']
-    if (implementation in ["fasttext", "word2vec"]):
-        embedding = importlib.import_module("embedding_" + implementation)
-        importlib.reload(embedding)
+    if implementation == 'fasttext':
+        embedding = embedding_fasttext.EmbeddingFasttext(config)
+
+    elif implementation == 'word2vec':
+        embedding = embedding_word2vec.EmbeddingWord2vec(config)
 
     else:
         print('embedding_algorithm (in config) must be "fasttext" or "word2vec"')
@@ -46,20 +54,19 @@ def run_pipeline(config):
         print("Running mode not recognized: set running_mode to 'normal' or 'develop'")
         return None
 
+    # source paths for embeddings
     emb_model_dir = os.path.join(base_data_dir, 'embeddings/')
-    train_data_dir = os.path.join(base_data_dir, 'train_data/')
+    emb_model_fn = config.config['embedding_model_filename']
+    emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
     # if not exists make embeddings folder
     if not os.path.exists(emb_model_dir):
         os.makedirs(emb_model_dir)
 
-    # filenames
+    # source paths for train_data
+    train_data_dir = os.path.join(base_data_dir, 'train_data/')
     train_data_fn = config.config['train_data_filename']
-    emb_model_fn = config.config['embedding_model_filename']
-
-    # source paths for train_data and output files
     train_data_src = os.path.join(train_data_dir, train_data_fn)
-    emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
 
     # compute new train data if needed
@@ -70,12 +77,13 @@ def run_pipeline(config):
 
     # train embeddings
     if (TRAIN_NEW_MODEL):
-        embedding.make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config)
+        embedding.train_model(train_data_src, emb_model_dir, emb_model_fn)
 
     # validate the embedding _model
-    model = mv.validate_model(emb_model_src, config)
+    mv.validate_model(embedding, emb_model_dir, emb_model_fn)
 
-    return model
+
+    return embedding._model
 
 if __name__ == '__main__':
 

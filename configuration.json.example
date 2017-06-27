@@ -1,17 +1,19 @@
 {
+    "compute_new_data": true,
+    "train_new_model": true,
     "base_data_dir": "data/",
     "develop_base_data_dir": "dev_data/",
     "val_data_dir": "data/validation_data/",
-    "compute_new_data": true,
     "config_path": "configuration.json",
-    "embedding_model_filename": "emb_model_1506.bin",
+    "train_data_filename": "train_2706.txt",
+    "embedding_model_filename": "emb_model_2706_w2v.bin",
     "embedding_vector_dim": 400,
     "min_token_appearance": 1,
     "running_mode": "develop",
     "tokenizer": "nst",
-    "train_data_filename": "train_1506.txt",
-    "train_new_model": true,
     "synonyms_numb_closest_vec": 40,
     "doesntfit_file": "german_doesntfit1.txt",
-    "synonyms_file": "german_synonyms3.txt"
+    "synonyms_file": "german_synonyms3.txt",
+    "fasttext_source": "../other/FastText/fastText/fasttext",
+    "embedding_algorithm": "word2vec"
 }

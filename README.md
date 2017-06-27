@@ -3,6 +3,32 @@ Tools to create and evaluate word vector embeddings for medical language.
 
 ## Getting started
 
+### word2vec
+
+#### installation 
+
+    pip install word2vec
+    
+
+### fastText (character n-grams by Facebook)
+
+#### installation 
+
+1) chose a basefolder to install fastText (called BASE_DIR in the following)
+
+        cd BASE_DIR
+        git clone https://github.com/facebookresearch/fastText.git
+        cd fastText
+        make
+
+    there should be an executable under "BASE_DIR/fastText/fasttext" now.
+
+2) add
+
+        "fasttext_source": "BASE_DIR/fastText/fasttext"
+   
+   to the config file.
+
 ### configuration
 
 change the filename 'configuration.json.example' to 'configuration.json'
@@ -83,22 +109,5 @@ get validation data from Fabian
 
 
 
-### fastText (character n-grams by Facebook)
 
-#### installation 
-
-1) chose a basefolder to install fastText (called BASE_DIR in the following)
-
-        cd BASE_DIR
-        git clone https://github.com/facebookresearch/fastText.git
-        cd fastText
-        make
-
-    there should be an executable under "BASE_DIR/fastText/fasttext" now.
-
-2) add
-
-        "fasttext_source": "BASE_DIR/fastText/fasttext"
-   
-   to the config file.
    

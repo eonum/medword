@@ -58,18 +58,30 @@ class NonStemmingTokenizer(TokenizerBase):
         # punctuation and stopwords
         punctuation_tokens = ['.', '..', '...', ',', ';', ':', '"', u'„', '„', u'“', '“', '\'',
                               '[', ']', '{', '}', '(', ')', '<', '>', '?', '!', '-', u'–', '+',
-                              '*', '--', '\'\'', '``', '‚', '‘','\n']
+                              '*', '--', '\\', '\'\'', '``', '‚', '‘', '\n', '\\n', '']
 
         punctuation = ['?', '.', '!', '/', ';', ':', '(', ')', '&', '\n']
-        split_chars = ['-', '/', '\\\\', '+']
+        split_chars = ['-', '/', '\\\\', '+', '|']
 
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
 
 
         # replace umlauts
         s = self.replace_umlauts(s)
+
+        # replace newline chars
+        def remove_newlines(document):
+            document = re.sub('\\n', ' ', document)
+            document = re.sub('\\\\n', ' ', document)
+            document = re.sub('\n', ' ', document)
+
+            return document
+
+        s = remove_newlines(s)
+
         # get word tokens
         words = nltk.word_tokenize(s)
+
 
         # filter punctuation tokens
         words = [x for x in words if x not in punctuation_tokens]
@@ -87,7 +99,6 @@ class NonStemmingTokenizer(TokenizerBase):
         words = flat_words
 
 
-
         # functions to remove all punctuations at the beginning and end of a word
         # (in case something in the nltk.word_tokenize() was left over)
         def remove_start_punct(word):
@@ -99,8 +110,6 @@ class NonStemmingTokenizer(TokenizerBase):
             while word and (word[-1] in punctuation_tokens):
                 word = word[:-1]
             return word
-
-
 
         # remove all punctuations at the beginning and ending of a word
         words = [remove_start_punct(x) for x in words]
@@ -168,6 +177,11 @@ def tokens_from_dir(directory, tokenizer, train_file):
                 # append token_string to train_file
                 token_string = " ".join(tokens) + " \n"
 
+                # replace multiple whitespaces with a single one
+                token_string = re.sub('\s+', ' ', token_string)
+
+                # save in utf-8 format
+                #token_string = bytes(token_string).decode('utf-8','ignore')
                 train_file.write(token_string)
 
                 # build set of all tokens and count total number of found tokens

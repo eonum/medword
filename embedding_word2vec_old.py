@@ -6,25 +6,27 @@ from subprocess import PIPE, Popen
 
 def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
 
+    print("Embedding Algorithm: word2vec")
+
     ### embedding parameters
 
     # embedding vector dimension
     emb_dim = config.config['embedding_vector_dim']
 
-    # minimum number a token has to appear to be included in model
+    # minimum number a token has to appear to be included in _model
     min_count = config.config['min_token_appearance']
 
     # number of cores
     n_cores = multiprocessing.cpu_count()
 
-    # embedding model source
+    # embedding _model source
     emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
     # downsampling high occurence
     sample_freq = 1e-5
 
 
-    print("Start training the model.")
+    print("Start training the _model.")
     # word2vec.word2vec(train_data_src, emb_model_src, size=emb_dim, window=5, sample=, hs=0,
     #                   negative=5, threads=n_cores, iter_=5, min_count=min_count, alpha=0.025,
     #                   debug=2, binary=1, cbow=1, save_vocab=None, read_vocab=None,
@@ -68,7 +70,7 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
     word2vec execution
     Parameters for training:
         train <file_path>
-            Use text data from <file_path> to train the model
+            Use text data from <file_path> to train the _model
         output <file_path>
             Use <file_path> to save the resulting word vectors / word clusters
         size <int>
@@ -97,8 +99,8 @@ def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
         binary <int>
             Save the resulting vectors in binary moded; default is 0 (off)
         cbow <int>
-            Use the continuous bag of words model; default is 1 (skip-gram
-            model)
+            Use the continuous bag of words _model; default is 1 (skip-gram
+            _model)
         save_vocab <file>
             The vocabulary will be saved to <file>
         read_vocab <file>

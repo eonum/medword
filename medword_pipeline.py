@@ -7,12 +7,10 @@ import importlib
 import json
 
 import preprocess as pp
-import embedding
-import model_validation as mv
+import model_validation_word2vec as mv
 
 # reload imported modules, as older versions are cached (developing purpose)
 importlib.reload(pp)
-importlib.reload(embedding)
 importlib.reload(mv)
 
 
@@ -20,19 +18,21 @@ def run_pipeline(config):
 
     pp.setup()
 
-    # # edit script settings if needed
-    # config.config['running_mode'] = 'normal'
-    # config.config['running_mode'] = 'develop'
-    #
-    # write it back to the file
-    # with open('configuration.json', 'w') as f:
-    #     json.dump(config.config, f, indent=4)
+    implementation = config['embedding_algorithm']
+    if (implementation in ["fasttext", "word2vec"]):
+        embedding = importlib.import_module("embedding_" + implementation)
+        importlib.reload(embedding)
+
+    else:
+        print('embedding_algorithm (in config) must be "fasttext" or "word2vec"')
+        return AttributeError
+
 
     ### script settings ###
     # if you want to produce a new train_data file from your data directory
     COMPUTE_NEW_TRAIN_DATA = config.config['compute_new_data']
 
-    # if you want to train a new word2vec model from your train_data file
+    # if you want to train a new word2vec _model from your train_data file
     TRAIN_NEW_MODEL = config.config['train_new_model']
 
     # data directories
@@ -68,11 +68,11 @@ def run_pipeline(config):
         pp.create_train_data(train_data_src, raw_data_dir, config)
 
 
-    # train embeddings using word2vec
+    # train embeddings
     if (TRAIN_NEW_MODEL):
         embedding.make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config)
 
-    # validate the embedding model
+    # validate the embedding _model
     model = mv.validate_model(emb_model_src, config)
 
     return model

@@ -5,18 +5,17 @@ import os
 from random import randint
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 
 def validate_model(model_fp, config):
-    print("Start validation. Loading model. \n")
+    print("Start validation. Loading _model. \n")
 
     val_dir = config.config['val_data_dir']
     doesntfit_fn = config.config['doesntfit_file']
     synonyms_fn = config.config['synonyms_file']
 
-    # load model
+    # load _model
     model = w2v.load(model_fp)
 
     # test with doesn't fit questions
@@ -53,7 +52,7 @@ def doesntfit(model, word_list):
 
     if n_used_words != n_words:
         ignored_words = set(word_list) - set(used_words)
-        print("vectors for words %s are not present in the model, ignoring these words: ", ignored_words)
+        print("vectors for words %s are not present in the _model, ignoring these words: ", ignored_words)
     if not used_words:
         print("cannot select a word from an empty list.")
 
@@ -72,6 +71,8 @@ def test_doesntfit(model, file_src, config):
         eg. "Auto Motorrad Fahrrad Ampel"
 
     """
+
+
     print("Validating 'doesntfit' with file", file_src)
 
     num_lines = sum(1 for line in open(file_src))
@@ -85,6 +86,8 @@ def test_doesntfit(model, file_src, config):
     with open(file_src) as f:
         questions = f.read().splitlines()
         tk_questions = [tokenizer.tokenize(q) for q in questions]
+
+    # TODO: check if tokenizer has splitted one word to mulitple words and handle it correctl
 
     # test each question
     for question in tk_questions:
@@ -113,7 +116,7 @@ def test_synonyms(model, file_src, n_closest_words, config):
         where word_1 and word_2 are synonyms
 
         eg. "Blutgerinnsel Thrombus"
-    - for word_1 check if it appears in the n closest words of word_2 using "model.cosine(word, n)"
+    - for word_1 check if it appears in the n closest words of word_2 using "_model.cosine(word, n)"
         and vice-versa
     - for each synonym-pair TWO CHECKS are made therefore (non-symmetric problem)
 
@@ -127,10 +130,17 @@ def test_synonyms(model, file_src, n_closest_words, config):
 
     tokenizer = pp.get_tokenizer(config)
 
-    # get questions
+    # get questions which are still of lenght 2 after tokenization
+    # TODO: improve for compound words (aaa-bbb), now just removed
+    tk_questions = []
     with open(file_src, 'r') as f:
         questions = f.read().splitlines()
-        tk_questions = [tokenizer.tokenize(q) for q in questions]
+
+        for q in questions:
+            tk_q = tokenizer.tokenize(q)
+            if len(tk_q) == 2:
+                tk_questions.append(tk_q)
+
 
     # test each question
     for tk_quest in tk_questions:
@@ -171,7 +181,7 @@ def test_synonyms(model, file_src, n_closest_words, config):
     coverage = np.round(num_questions/np.float(num_lines)*100, 1) if num_lines>0 else 0.0
 
     # log result
-    print("Synonyms: {0} pairs in input. {1} pairs in model-vocabulary.".format(str(num_lines), str(num_questions)))
+    print("Synonyms: {0} pairs in input. {1} pairs in _model-vocabulary.".format(str(num_lines), str(num_questions)))
     print("\n*** Cosine-Similarity ***")
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))

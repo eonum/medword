@@ -53,7 +53,51 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
 
 
     def train_model(self, train_data_src, emb_model_dir, emb_model_fn):
+        """
+        Train word2vec model with following parameters:
+        ***********************************************
 
+        train <file_path>
+            Use text data from <file_path> to train the _model
+        output <file_path>
+            Use <file_path> to save the resulting word vectors / word clusters
+        size <int>
+            Set size of word vectors; default is 100
+        window <int>
+            Set max skip length between words; default is 5
+        sample <float>
+            Set threshold for occurrence of words. Those that appear with
+            higher frequency in the training data will be randomly
+            down-sampled; default is 0 (off), useful value is 1e-5
+        hs <int>
+            Use Hierarchical Softmax; default is 1 (0 = not used)
+        negative <int>
+            Number of negative examples; default is 0, common values are 5 - 10
+            (0 = not used)
+        threads <int>
+            Use <int> threads (default 1)
+        iter_ = number of iterations (epochs) over the corpus. Default is 5.
+        min_count <int>
+            This will discard words that appear less than <int> times; default
+            is 5
+        alpha <float>
+            Set the starting learning rate; default is 0.025
+        debug <int>
+            Set the debug mode (default = 2 = more info during training)
+        binary <int>
+            Save the resulting vectors in binary moded; default is 0 (off)
+        cbow <int>
+            Use the continuous bag of words _model; default is 1 (skip-gram
+            _model)
+        save_vocab <file>
+            The vocabulary will be saved to <file>
+        read_vocab <file>
+            The vocabulary will be read from <file>, not constructed from the
+            training data
+        verbose
+            Print output from training
+
+        """
         print("\nEmbedding Algorithm: word2vec")
 
         ### embedding parameters
@@ -109,50 +153,6 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         self.load_model(emb_model_dir, emb_model_fn)
 
         print("Training finsihed. \nModel saved at:", emb_model_src)
-
-        """
-        word2vec execution
-        Parameters for training:
-            train <file_path>
-                Use text data from <file_path> to train the _model
-            output <file_path>
-                Use <file_path> to save the resulting word vectors / word clusters
-            size <int>
-                Set size of word vectors; default is 100
-            window <int>
-                Set max skip length between words; default is 5
-            sample <float>
-                Set threshold for occurrence of words. Those that appear with
-                higher frequency in the training data will be randomly
-                down-sampled; default is 0 (off), useful value is 1e-5
-            hs <int>
-                Use Hierarchical Softmax; default is 1 (0 = not used)
-            negative <int>
-                Number of negative examples; default is 0, common values are 5 - 10
-                (0 = not used)
-            threads <int>
-                Use <int> threads (default 1)
-            iter_ = number of iterations (epochs) over the corpus. Default is 5.
-            min_count <int>
-                This will discard words that appear less than <int> times; default
-                is 5
-            alpha <float>
-                Set the starting learning rate; default is 0.025
-            debug <int>
-                Set the debug mode (default = 2 = more info during training)
-            binary <int>
-                Save the resulting vectors in binary moded; default is 0 (off)
-            cbow <int>
-                Use the continuous bag of words _model; default is 1 (skip-gram
-                _model)
-            save_vocab <file>
-                The vocabulary will be saved to <file>
-            read_vocab <file>
-                The vocabulary will be read from <file>, not constructed from the
-                training data
-            verbose
-                Print output from training
-        """
 
 
     def load_model(self, emb_model_dir, emb_model_fn):

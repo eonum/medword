@@ -61,8 +61,8 @@ class NonStemmingTokenizer(TokenizerBase):
                               '*', '--', '\\', '\'\'', '``', '‚', '‘', '\n', '\\n', '']
 
         punctuation = ['?', '.', '!', '/', ';', ':', '(', ')', '&', '\n']
-        split_chars = ['-', '/', '\\\\', '+', '|']
-
+        # split_chars = ['-', '/', '\\\\', '+', '|']
+        split_chars = ['/', '\\\\', '+', '|']
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
 
 

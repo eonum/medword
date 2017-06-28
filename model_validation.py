@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 
 
 def validate_model(embedding, emb_model_dir, emb_model_fn):
-    print("Start validation. Loading _model. \n")
+    print("Start validation. Loading model. \n")
 
     # load config
     config = embedding.config
 
-    # load _model
+    # load model
     embedding.load_model(emb_model_dir, emb_model_fn)
 
     # directories and filenames
@@ -38,19 +38,19 @@ def validate_model(embedding, emb_model_dir, emb_model_fn):
 #### Doesn't Fit Validation ####
 
 
-def doesntfit(embedding, word_list, vocab):
+def doesntfit(embedding, word_list):
     """
     - compares each word-vector to mean of all word-vectors of word_list using the vector dot-product
     - vector with lowest dot-produt to mean-vector is regarded as the one that dosen't fit
 
     """
-    used_words = [word for word in word_list if word in vocab]
+    used_words = [word for word in word_list if embedding.may_construct_word_vec(word)]
     n_used_words = len(used_words)
     n_words = len(word_list)
 
     if n_used_words != n_words:
         ignored_words = set(word_list) - set(used_words)
-        print("vectors for words %s are not present in the _model, ignoring these words: ", ignored_words)
+        print("vectors for words %s are not present in the model, ignoring these words: ", ignored_words)
     if not used_words:
         print("cannot select a word from an empty list.")
 
@@ -93,9 +93,9 @@ def test_doesntfit(embedding, file_src):
     for question in tk_questions:
 
         # check if all words exist in vocabulary
-        if all(word in vocab for word in question):
+        if all(((word in vocab) or (embedding.may_construct_word_vec(word))) for word in question):
             num_questions += 1
-            if doesntfit(embedding, question, vocab) == question[-1]:
+            if doesntfit(embedding, question) == question[-1]:
                 num_right += 1
 
     # calculate result
@@ -116,7 +116,7 @@ def test_synonyms(embedding, file_src, n_closest_words):
         where word_1 and word_2 are synonyms
 
         eg. "Blutgerinnsel Thrombus"
-    - for word_1 check if it appears in the n closest words of word_2 using "_model.cosine(word, n)"
+    - for word_1 check if it appears in the n closest words of word_2 using "model.cosine(word, n)"
         and vice-versa
     - for each synonym-pair TWO CHECKS are made therefore (non-symmetric problem)
 
@@ -149,7 +149,7 @@ def test_synonyms(embedding, file_src, n_closest_words):
     for tk_quest in tk_questions:
 
         # check if all words exist in vocabulary
-        if all(word in vocab for word in tk_quest):
+        if all(((word in vocab) or embedding.may_construct_word_vec(word))  for word in tk_quest):
             num_questions += 1
 
             w1 = tk_quest[0]
@@ -188,7 +188,7 @@ def test_synonyms(embedding, file_src, n_closest_words):
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))
     print("\n*** Synonym Recognition ***")
-    print("Synonyms: {0} pairs in input. {1} pairs in _model-vocabulary.".format(str(num_lines), str(num_questions)))
+    print("Synonyms: {0} pairs in input. {1} pairs after tokenization. {2} pairs in model-vocabulary.".format(str(num_lines), str(len(tk_questions)), str(num_questions)))
 
     print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors "
           "per word.".format(str(correct_matches), str(num_right), str(2*num_questions), str(n_closest_words)))

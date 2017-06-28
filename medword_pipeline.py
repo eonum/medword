@@ -9,7 +9,6 @@ import json
 
 import preprocess as pp
 import embedding_fasttext
-import embedding_fasttext_gensim
 import embedding_word2vec
 import model_validation as mv
 
@@ -25,7 +24,7 @@ def run_pipeline(config):
     pp.setup()
 
     # choose the embedding algorithm
-    implementation = config['embedding_algorithm']
+    implementation = config['embedding_method']
     if implementation == 'fasttext':
         embedding = embedding_fasttext.EmbeddingFasttext(config)
 
@@ -41,7 +40,7 @@ def run_pipeline(config):
     # if you want to produce a new train_data file from your data directory
     COMPUTE_NEW_TRAIN_DATA = config.config['compute_new_data']
 
-    # if you want to train a new word2vec _model from your train_data file
+    # if you want to train a new word2vec model from your train_data file
     TRAIN_NEW_MODEL = config.config['train_new_model']
 
     # data directories
@@ -80,9 +79,8 @@ def run_pipeline(config):
     if (TRAIN_NEW_MODEL):
         embedding.train_model(train_data_src, emb_model_dir, emb_model_fn)
 
-    # validate the embedding _model
+    # validate the embedding model
     mv.validate_model(embedding, emb_model_dir, emb_model_fn)
-
 
     return embedding
 

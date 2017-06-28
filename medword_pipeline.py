@@ -24,11 +24,11 @@ def run_pipeline(config):
     pp.setup()
 
     # choose the embedding algorithm
-    implementation = config['embedding_method']
-    if implementation == 'fasttext':
+    emb_method = config['embedding_method']
+    if emb_method == 'fasttext':
         embedding = embedding_fasttext.EmbeddingFasttext(config)
 
-    elif implementation == 'word2vec':
+    elif emb_method == 'word2vec':
         embedding = embedding_word2vec.EmbeddingWord2vec(config)
 
     else:

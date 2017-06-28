@@ -1,3 +1,10 @@
+"""
+embedding method: word2vec by Google
+
+wrappper: https://github.com/danielfrg/word2vec (pip install wor2vec)
+
+"""
+
 import multiprocessing
 import numpy as np
 import os
@@ -87,8 +94,8 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         binary <int>
             Save the resulting vectors in binary moded; default is 0 (off)
         cbow <int>
-            Use the continuous bag of words _model; default is 1 (skip-gram
-            _model)
+            Use the continuous bag of words model; default is 1 (skip-gram
+            model)
         save_vocab <file>
             The vocabulary will be saved to <file>
         read_vocab <file>
@@ -98,9 +105,19 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
             Print output from training
 
         """
-        print("\nEmbedding Algorithm: word2vec")
+        algorithm = self.config.config['embedding_algorithm']  # skipgram or cbow
+        print("\nEmbedding Method: word2vec, algorithm:", algorithm)
 
         ### embedding parameters
+
+        # embedding train algorithm
+        if algorithm == "skipgram":
+            alg = 1
+        elif algorithm == "cbow":
+            alg = 0
+        else:
+            print("train algorithm must be 'skipgram' or 'cbow' ")
+            return AttributeError
 
         # embedding vector dimension
         emb_dim = self.config.config['embedding_vector_dim']
@@ -117,10 +134,12 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         # downsampling high occurence
         sample_freq = 1e-5
 
+        # TODO probabla add negative sampling
+
         print("Start training the model.")
 
         command = ["word2vec", "-train", train_data_src, "-output", emb_model_src,
-                   "-binary", "1", "-cbow", '1', "-size", str(emb_dim), "-sample", str(sample_freq),
+                   "-binary", "1", "-cbow", str(alg), "-size", str(emb_dim), "-sample", str(sample_freq),
                    "-min-count", str(min_count), "-threads", str(n_cores)]
 
         # Open pipe to subprocess

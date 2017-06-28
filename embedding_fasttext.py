@@ -3,7 +3,7 @@ embedding method: FastText by Facebook
 
 - using subword information: character n-grams
 
-https://github.com/salestock/fastText.py
+wrapper: https://github.com/salestock/fastText.py (pip install fasttext)
 https://pypi.python.org/pypi/fasttext
 
 """
@@ -13,6 +13,8 @@ import os
 import json
 from embedding_base import EmbeddingBaseAbstract
 from gensim.models import KeyedVectors
+import multiprocessing
+
 
 class EmbeddingFasttext(EmbeddingBaseAbstract):
 
@@ -47,23 +49,56 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
         encoding       specify input_file encoding [utf-8]
         """
 
-        print("\nEmbedding Algorithm: fastText pure")
 
         # remove extention for fasttext
         model_name, ext = os.path.splitext(emb_model_fn)
         emb_model_src_no_ext = os.path.join(emb_model_dir, model_name)
 
-        # Model parameters
-        algorithm = "skipgram"      # skipgram or cbow
 
+        # Model parameters
+        algorithm = self.config.config['embedding_algorithm']     # skipgram or cbow
+        print("\nEmbedding Method: fastText, algorithm:", algorithm)
+
+        # embedding vector dimension
+        emb_dim = self.config.config['embedding_vector_dim']
+
+        # minimum number a token has to appear to be included in _model
+        min_count = self.config.config['min_token_appearance']
+
+        # min ngram length (number of chars)
+        minn = 3
+
+        # max ngram length (number of chars)
+        maxn = 6
+
+        # number of cores
+        n_cores = multiprocessing.cpu_count()
 
         # train model
-        if algorithm is "skipgram":
-            self._model = fasttext.skipgram(train_data_src, emb_model_src_no_ext, silent=0)
+        if algorithm == "skipgram":
+            self._model = fasttext.skipgram(input_file = train_data_src,
+                                            output = emb_model_src_no_ext,
+                                            dim = emb_dim,
+                                            min_count = min_count,
+                                            minn = minn,
+                                            maxn = maxn,
+                                            thread = n_cores,
+                                            silent = 0)
+
             self._vectors = KeyedVectors.load_word2vec_format(emb_model_src_no_ext + '.vec')
-        elif algorithm is "cbow":
-            self._model = fasttext.cbow(train_data_src, emb_model_src_no_ext)
-            self._vectors = KeyedVectors.load_word2vec_format(emb_model_src_no_ext + '.vec', silent=0)
+
+        elif algorithm == "cbow":
+            self._model = fasttext.cbow(input_file = train_data_src,
+                                        output = emb_model_src_no_ext,
+                                        dim = emb_dim,
+                                        min_count = min_count,
+                                        minn = minn,
+                                        maxn = maxn,
+                                        thread = n_cores,
+                                        silent = 0)
+
+            self._vectors = KeyedVectors.load_word2vec_format(emb_model_src_no_ext + '.vec')
+
         else:
             print("fasttext algorithm must be 'skipgram' or 'cbow' ")
             return AttributeError

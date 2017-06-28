@@ -2,7 +2,7 @@ import numpy as np
 import preprocess as pp
 import os
 from random import randint
-from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
 
@@ -198,33 +198,38 @@ def test_synonyms(embedding, file_src, n_closest_words):
 
 
 #### Visualization ####
-def visualize_words(model, word_list, n_nearest_neighbours):
+def visualize_words(embedding, word_list, n_nearest_neighbours):
 
     # get indexes and words that you want to visualize
     words_to_visualize = []
-    word_indexes_to_visualize = []
+    # word_indexes_to_visualize = []
 
     # get all words and neighbors that you want to visualize
     for word in word_list:
-        if word not in model:
+        if not embedding.may_construct_word_vec(word):
             continue
         words_to_visualize.append(word)
-        word_indexes_to_visualize.append(model.ix(word))
+        # word_indexes_to_visualize.append(model.ix(word))
 
         # get neighbours of word
-        indexes, metrics = model.cosine(word, n_nearest_neighbours)
 
-        neighbours = model.vocab[indexes]
+        neighbours = [n for (n, m) in embedding.most_similar_n(word, n_nearest_neighbours)]
+
         words_to_visualize.extend(neighbours)
-        word_indexes_to_visualize.extend(indexes)
+        #word_indexes_to_visualize.extend(indexes)
+
 
     # get vectors from indexes to visualize
-    emb_vectors = model.vectors[word_indexes_to_visualize]
+    if words_to_visualize == []:
+        print("No word found to show.")
+        return
+
+    emb_vectors = np.vstack([embedding.word_vec(word) for word in words_to_visualize])
+
 
     # project down to 2D
-    tsne = TSNE(n_components=2, random_state=0)
-    np.set_printoptions(suppress=True)
-    emb_vec_2D = tsne.fit_transform(emb_vectors)
+    pca = PCA(n_components=2)
+    emb_vec_2D = pca.fit_transform(emb_vectors)
 
     n_inputs = len(word_list)
 

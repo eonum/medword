@@ -34,12 +34,21 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
 
         return self._model.vocab.tolist()
 
-    def most_similar_n(self, word, n=10):
+    def most_similar_n(self, word, topn=10):
         if not self._model:
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
-        indexes, metrics = self._model.cosine(word, n)
+        indexes, metrics = self._model.cosine(word, topn)
+        return self._model.generate_response(indexes, metrics).tolist()
+
+
+    def analogy(self, positives, negatives, topn):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        indexes, metrics = self._model.analogy(positives, negatives, topn)
         return self._model.generate_response(indexes, metrics).tolist()
 
 
@@ -52,6 +61,13 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         v2 = self._model[word2] / np.linalg.norm(self._model[word2], 2)
 
         return np.dot(v1, v2)
+
+    def vec_dim(self):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        return self._model.vectors.shape[1]
 
 
     def may_construct_word_vec(self, word):
@@ -106,7 +122,7 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
 
         """
         algorithm = self.config.config['embedding_algorithm']  # skipgram or cbow
-        print("\nEmbedding Method: word2vec, Algorithm:", algorithm)
+        print("Embedding Method: word2vec, Algorithm:", algorithm)
 
         ### embedding parameters
 

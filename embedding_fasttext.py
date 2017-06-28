@@ -57,7 +57,7 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
         # Model parameters
         algorithm = self.config.config['embedding_algorithm']     # skipgram or cbow
-        print("\nEmbedding Method: fastText, Algorithm:", algorithm)
+        print("Embedding Method: fastText, Algorithm:", algorithm)
 
         # embedding vector dimension
         emb_dim = self.config.config['embedding_vector_dim']
@@ -135,14 +135,14 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
         return self._model.cosine_similarity(word1, word2)
 
 
-    def most_similar_n(self, word, n=10):
+    def most_similar_n(self, word, topn=10):
         if not self._model:
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
         word_vec = self.word_vec(word)
 
-        return self._vectors.similar_by_vector(word_vec)
+        return self._vectors.similar_by_vector(word_vec, topn)
 
 
     def load_model(self, emb_model_dir, emb_model_fn):
@@ -167,6 +167,22 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
             return ReferenceError
 
         return np.asarray(self._model[word], dtype=np.float64)
+
+
+    def vec_dim(self):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        return self._model.dim
+
+
+    def analogy(self, positives, negatives, topn):
+        if not self._model:
+            print("Model not defined. Train or load a model.")
+            return ReferenceError
+
+        return self._vectors.most_similar(positives, negatives, topn)
 
 
     def may_construct_word_vec(self, word):

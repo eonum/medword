@@ -25,7 +25,7 @@ class EmbeddingBaseAbstract(ABC):
         pass
 
     @abstractmethod
-    def most_similar_n(self, word, n):
+    def most_similar_n(self, word, topn):
         # return a list of the n most similar words in model
         pass
 
@@ -42,12 +42,22 @@ class EmbeddingBaseAbstract(ABC):
     @abstractmethod
     def may_construct_word_vec(self, word):
         # return True if model can get e vector for 'word'
-
         pass
 
     @abstractmethod
     def load_model(self, emb_model_dir, emb_model_fn):
         # load embedding model
         pass
+
+    @abstractmethod
+    def analogy(self, positives, negatives, topn):
+        # load embedding model
+        pass
+
+    @abstractmethod
+    def vec_dim(self):
+        # return dimension of embedding vectors
+        pass
+
 
 

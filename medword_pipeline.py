@@ -16,23 +16,13 @@ importlib.reload(mv)
 importlib.reload(embedding_fasttext)
 importlib.reload(embedding_word2vec)
 
-def run_pipeline(config):
+def run_pipeline(embedding):
 
     # setup needed libraries, data structures etc.
     pp.setup()
 
-    # choose the embedding algorithm
-    emb_method = config['embedding_method']
-    if emb_method == 'fasttext':
-        embedding = embedding_fasttext.EmbeddingFasttext(config)
-
-    elif emb_method == 'word2vec':
-        embedding = embedding_word2vec.EmbeddingWord2vec(config)
-
-    else:
-        print('embedding_algorithm (in config) must be "fasttext" or "word2vec"')
-        return AttributeError
-
+    # get config
+    config = embedding.config
 
     ### script settings ###
     # if you want to produce a new train_data file from your data directory
@@ -40,6 +30,9 @@ def run_pipeline(config):
 
     # if you want to train a new word2vec model from your train_data file
     TRAIN_NEW_MODEL = config.config['train_new_model']
+
+    # if you want to run the validation
+    RUN_VALIDATION = config.config['run_validation']
 
     # data directories
     if(config.config['running_mode'] == 'develop'):
@@ -68,22 +61,43 @@ def run_pipeline(config):
 
     # compute new train data if needed
     if (COMPUTE_NEW_TRAIN_DATA):
+        print("\n*** COMPUTING TRAIN DATA *** ")
         raw_data_dir = os.path.join(train_data_dir, 'raw_data/')
         pp.create_train_data(train_data_src, raw_data_dir, config)
+        print("*** END COMPUTING TRAIN DATA *** ")
 
 
     # train embeddings
     if (TRAIN_NEW_MODEL):
+        print("\n*** TRAINING NEW MODEL *** ")
         embedding.train_model(train_data_src, emb_model_dir, emb_model_fn)
+        print("*** END TRAINING NEW MODEL *** ")
 
     # validate the embedding model
-    mv.validate_model(embedding, emb_model_dir, emb_model_fn)
+    if (RUN_VALIDATION):
+        print("\n*** VALIDATING MODEL *** ")
+        mv.validate_model(embedding, emb_model_dir, emb_model_fn)
+        print("*** END VALIDATING MODEL *** ")
 
-    return embedding
 
 if __name__ == '__main__':
 
-    model = run_pipeline(__CONFIG__) #TODO remove return value, only for development
+    config = __CONFIG__
+
+    # choose the embedding algorithm
+    emb_method = config.config['embedding_method']
+    if emb_method == 'fasttext':
+        embedding = embedding_fasttext.EmbeddingFasttext(config)
+
+    elif emb_method == 'word2vec':
+        embedding = embedding_word2vec.EmbeddingWord2vec(config)
+
+    else:
+        print('embedding_algorithm (in config) must be "fasttext" or "word2vec"')
+        raise AttributeError
+
+    run_pipeline(embedding)
+
     print("end_main")
 
 

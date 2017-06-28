@@ -10,41 +10,6 @@ or
     pip3 install -r requirements.txt
 
 
-### fastText (character n-grams by Facebook)
-
-#### installation 
-
-1) chose a basefolder to install fastText (called BASE_DIR in the following)
-
-        cd BASE_DIR
-        git clone https://github.com/facebookresearch/fastText.git
-        cd fastText
-        make
-
-    there should be an executable under "BASE_DIR/fastText/fasttext" now.
-
-2) add
-
-        "fasttext_source": "BASE_DIR/fastText/fasttext"
-   
-   to the config file.
-
-### configuration
-
-change the filename 'configuration.json.example' to 'configuration.json'
-
-#### adapt the configuration file (configuration.json) if needed
-
-if you want to produce a new train_data file from your data directory
-
-    "compute_new_data": true
-
-
-if you want to train a new word2vec model from your train_data file
-
-    "train_new_model": true
-
-
 ### data
 
 #### create the following data structure:
@@ -88,6 +53,53 @@ or 'wiki_data/positives/')
 get validation data from Fabian
 
 
+### configuration
+
+1) change the filename 'configuration.json.example' to 'configuration.json'
+
+2) adapt the configuration file (configuration.json) if needed
+
+#### configuration parameters
+Running mode: if run in develop mode, the base data directory will be different
+(eg. .../dev_data/ instead of .../data/, used to develop on smaller data).
+
+    "running_mode": "normal" or "develop",
+
+Choose embedding method and algorithm. Currently, there are two embedding methods
+supported, fasttext
+
+    "embedding_method": "fasttext" or "word2vec",
+    "embedding_algorithm": "skipgram" or "cbow",
+ 
+Training file (already preprocessed/tokenized). This is the output file in case 
+you process new train data and the input file for the training algorithm.
+    
+    "train_data_filename": "train_nst.txt",
+    
+Embedding Model: Output file of the training and input file of the validation.
+
+    "embedding_model_filename": "emb_model_full_ft.bin",
+
+Data directories: 
+
+    "base_data_dir": "data/",
+    "develop_base_data_dir": "dev_data/",
+    "val_data_dir": "data/validation_data/",
+    "config_path": "configuration.json",
+
+Model settings: 
+
+    "embedding_vector_dim": 400,
+    "min_token_appearance": 1,
+    "tokenizer": "nst" or "sgt",
+
+Validation settings:
+
+    "synonyms_numb_closest_vec": 40,
+    "doesntfit_file": "german_doesntfit1.txt",
+    "synonyms_file": "german_synonyms3.txt"
+
+
 
 ## run the following statement
 
@@ -97,15 +109,6 @@ get validation data from Fabian
 
     ipython notebook validation_interactive.ipynb
 
-
-## usefull commands for configuration update
-
-    config.config = json.load(open('configuration.json', 'r'))
-
-    config.config['attribute'] = new_value
-
-    with open('configuration.json', 'w') as f:
-        json.dump(config.config, f, indent=4)
 
 
 

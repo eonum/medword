@@ -18,7 +18,7 @@ from nltk.corpus import stopwords
 
 
 def setup():
-    # setup needed libraries, directories etc. TODO directories
+    # setup needed libraries, directories etc. TODO construct need directories automatically
     nltk.download('punkt')
 
 class TokenizerBase():
@@ -61,6 +61,8 @@ class NonStemmingTokenizer(TokenizerBase):
                               '*', '--', '\\', '\'\'', '``', '‚', '‘', '\n', '\\n', '']
 
         punctuation = ['?', '.', '!', '/', ';', ':', '(', ')', '&', '\n']
+
+        # Define at which chars you want to split words
         # split_chars = ['-', '/', '\\\\', '+', '|']
         split_chars = ['/', '\\\\', '+', '|']
         # stop_words = [self.replace_umlauts(token) for token in stopwords.words('german')]
@@ -181,7 +183,9 @@ def tokens_from_dir(directory, tokenizer, train_file):
                 token_string = re.sub('\s+', ' ', token_string)
 
                 # save in utf-8 format
-                #token_string = bytes(token_string).decode('utf-8','ignore')
+                # TODO remove illegal non-utf-8 symbols
+                # (read and write should decode and encode in utf-8 by standard in python3,
+                # the once appeared error could not be reconstructed)
                 train_file.write(token_string)
 
                 # build set of all tokens and count total number of found tokens
@@ -213,8 +217,6 @@ def get_tokenizer(config):
 def create_train_data(train_data_src, raw_data_dir, config):
 
     print("Creating new training data. ")
-
-    ### create needed directories TODO
 
     ### Create needed token-datastructures
     tokenizer = get_tokenizer(config)

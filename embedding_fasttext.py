@@ -57,7 +57,7 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
         # Model parameters
         algorithm = self.config.config['embedding_algorithm']     # skipgram or cbow
-        print("\nEmbedding Method: fastText, algorithm:", algorithm)
+        print("\nEmbedding Method: fastText, Algorithm:", algorithm)
 
         # embedding vector dimension
         emb_dim = self.config.config['embedding_vector_dim']
@@ -120,10 +120,11 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
                 n_words += len(line.split())
 
         # note that word2vec counts newline chars as words, we do the same here for consistency
+        # to compare these two word counts
+
         print("Training finsihed.\n"
               "Vocab size:", len(self.get_vocab()), ", words in train file:", n_lines + n_words, "\n"
               "Model saved at:", emb_model_src_no_ext + ".bin,", emb_model_src_no_ext + ".vec" )
-
 
 
     def similarity(self, word1, word2):
@@ -151,6 +152,7 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
         self._model = fasttext.load_model(emb_model_src_no_ext + '.bin')
         self._vectors = KeyedVectors.load_word2vec_format(emb_model_src_no_ext + '.vec')
 
+
     def get_vocab(self):
         if not self._model:
             print("Model not defined. Train or load a model.")
@@ -168,6 +170,6 @@ class EmbeddingFasttext(EmbeddingBaseAbstract):
 
 
     def may_construct_word_vec(self, word):
-
+        # TODO implement, assumes that fasttext can construct all words at the moment
         return True
 

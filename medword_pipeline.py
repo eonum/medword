@@ -1,6 +1,4 @@
-# from shared.load_config import load_config
 from shared.load_config import __CONFIG__
-
 
 import os
 import importlib
@@ -57,7 +55,6 @@ def run_pipeline(config):
     # source paths for embeddings
     emb_model_dir = os.path.join(base_data_dir, 'embeddings/')
     emb_model_fn = config.config['embedding_model_filename']
-    emb_model_src = os.path.join(emb_model_dir, emb_model_fn)
 
     # if not exists make embeddings folder
     if not os.path.exists(emb_model_dir):

@@ -106,7 +106,7 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
 
         """
         algorithm = self.config.config['embedding_algorithm']  # skipgram or cbow
-        print("\nEmbedding Method: word2vec, algorithm:", algorithm)
+        print("\nEmbedding Method: word2vec, Algorithm:", algorithm)
 
         ### embedding parameters
 

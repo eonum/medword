@@ -1,4 +1,3 @@
-import word2vec as w2v
 import numpy as np
 import preprocess as pp
 import os
@@ -86,8 +85,11 @@ def test_doesntfit(embedding, file_src):
         questions = f.read().splitlines()
         tk_questions = [tokenizer.tokenize(q) for q in questions]
 
-    # TODO: check if tokenizer has splitted one word to mulitple words and handle it correctl
+    # TODO: check if tokenizer has splitted one word to mulitple words and handle it.
+    # So far no word in the doesnt_fit testfile should be splitted
 
+    # vocab used to speed checking if word is in vocabulary
+    # (also checked by embedding.may_construct_word_vec(word))
     vocab = embedding.get_vocab()
     # test each question
     for question in tk_questions:
@@ -133,7 +135,7 @@ def test_synonyms(embedding, file_src, n_closest_words):
     tokenizer = pp.get_tokenizer(config)
 
     # get questions which are still of lenght 2 after tokenization
-    # TODO: improve for compound words (aaa-bbb)
+    # TODO: improve for compound words (aaa-bbb) which are splitted by the tokenizer
     tk_questions = []
     with open(file_src, 'r') as f:
         questions = f.read().splitlines()

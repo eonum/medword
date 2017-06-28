@@ -13,8 +13,8 @@
     "val_data_dir": "data/validation_data/",
     "config_path": "configuration.json",
 
-    "embedding_vector_dim": 400,
-    "min_token_appearance": 1,
+    "embedding_vector_dim": 200,
+    "min_token_appearance": 5,
     "tokenizer": "nst",
 
     "synonyms_numb_closest_vec": 40,

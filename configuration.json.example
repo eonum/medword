@@ -21,6 +21,6 @@
     "synonyms_numb_closest_vec": 40,
     "doesntfit_file": "german_doesntfit1.txt",
     "synonyms_file": "german_synonyms3.txt",
-    
+
     "config_path": "configuration.json"
 }

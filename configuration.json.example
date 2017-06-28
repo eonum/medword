@@ -1,19 +1,23 @@
 {
-    "compute_new_data": true,
+    "running_mode": "normal",
+    "compute_new_data": false,
     "train_new_model": true,
+
+    "embedding_method": "fasttext",
+    "embedding_algorithm": "skipgram",
+    "train_data_filename": "train_nst.txt",
+    "embedding_model_filename": "emb_model_full_ft.bin",
+
     "base_data_dir": "data/",
     "develop_base_data_dir": "dev_data/",
     "val_data_dir": "data/validation_data/",
     "config_path": "configuration.json",
-    "train_data_filename": "train_2706.txt",
-    "embedding_model_filename": "emb_model_2706_w2v.bin",
+
     "embedding_vector_dim": 400,
     "min_token_appearance": 1,
-    "running_mode": "develop",
     "tokenizer": "nst",
+
     "synonyms_numb_closest_vec": 40,
     "doesntfit_file": "german_doesntfit1.txt",
-    "synonyms_file": "german_synonyms3.txt",
-    "fasttext_source": "../other/FastText/fastText/fasttext",
-    "embedding_algorithm": "word2vec"
+    "synonyms_file": "german_synonyms3.txt"
 }

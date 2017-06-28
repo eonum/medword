@@ -2,13 +2,13 @@
 Tools to create and evaluate word vector embeddings for medical language.
 
 ## Getting started
+Install the required libraries using:
 
-### word2vec
+    pip install -r requirements.txt
+or
 
-#### installation 
+    pip3 install -r requirements.txt
 
-    pip install word2vec
-    
 
 ### fastText (character n-grams by Facebook)
 

@@ -9,6 +9,7 @@ import json
 
 import preprocess as pp
 import embedding_fasttext
+import embedding_fasttext_gensim
 import embedding_word2vec
 import model_validation as mv
 
@@ -83,7 +84,7 @@ def run_pipeline(config):
     mv.validate_model(embedding, emb_model_dir, emb_model_fn)
 
 
-    return embedding._model
+    return embedding
 
 if __name__ == '__main__':
 

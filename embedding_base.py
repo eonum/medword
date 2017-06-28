@@ -27,6 +27,10 @@ class EmbeddingBaseAbstract(ABC):
         pass
 
     @abstractmethod
+    def may_construct_word_vec(self, word):
+        pass
+
+    @abstractmethod
     def load_model(self, emb_model_dir, emb_model_fn):
         pass
 

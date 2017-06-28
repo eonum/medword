@@ -18,7 +18,7 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
-        return self._model.get_vector(word)
+        return np.asarray(self._model.get_vector(word), dtype=np.float64)
 
     def get_vocab(self):
         if not self._model:
@@ -45,6 +45,11 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         v2 = self._model[word2] / np.linalg.norm(self._model[word2], 2)
 
         return np.dot(v1, v2)
+
+
+    def may_construct_word_vec(self, word):
+
+        return word in self.get_vocab()
 
 
     def train_model(self, train_data_src, emb_model_dir, emb_model_fn):
@@ -156,9 +161,4 @@ class EmbeddingWord2vec(EmbeddingBaseAbstract):
         self._model = w2v.load(emb_model_src)
 
 
-def make_emb_from_file(train_data_src, emb_model_dir, emb_model_fn, config):
-
-    print("Not used anymore")
-
-    ### embedding parameters
 

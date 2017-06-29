@@ -151,7 +151,7 @@ def get_tokens_from_file(file, tokenizer):
     reads file and returns a list of all ovserved tokens (stemmed)
     """
     file.seek(0)  # reset file iterator
-    data = file.read().replace('\n', '')
+    data = file.read()
     tokens = tokenizer.tokenize(data)
 
     return tokens

@@ -5,7 +5,7 @@
     "run_validation": false,
 
     "embedding_method": "fasttext",
-    "embedding_algorithm": "skipgram",
+    "embedding_algorithm": "cbow",
 
     "train_data_filename": "train.txt",
     "embedding_model_filename": "emb_model_ft.bin",

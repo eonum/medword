@@ -38,6 +38,11 @@ class TokenizerBase():
         res = res.replace(u'ß', 'ss')
         return res
 
+    def replace_special_chars(self, text):
+        res = text
+        res = res.replace(u'—', '-')
+        return res
+
 
 class SimpleGermanTokenizer(TokenizerBase):
     def tokenize(self, s):
@@ -81,6 +86,8 @@ class NonStemmingTokenizer(TokenizerBase):
 
         s = remove_newlines(s)
 
+        s = self.replace_special_chars(s)
+
         # get word tokens
         words = nltk.word_tokenize(s)
 
@@ -122,6 +129,9 @@ class NonStemmingTokenizer(TokenizerBase):
 
         # process words
         words = [x.lower() for x in words]
+
+        # remove everything except
+        words = [re.sub(r'[^a-z0-9%éèà=><†@≥≤\s\-\/]', '', x) for x in words]
 
         # remove stopwords TODO activate maybe
         # words = [x for x in words if x not in stop_words]

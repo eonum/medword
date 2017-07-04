@@ -19,7 +19,7 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
         end = len(word) - 1
         vector = None
 
-        while word != '' and end > 0:
+        while word != '' and end > 0: # TODO: crop at the beginning if nothing has been found. Or replace with dynamic programming / matrix based tokenization
             if word[:end] in self._model.vocab_hash:
                 if vector is None:
                     vector = self._model.get_vector(word[:end])
@@ -60,14 +60,17 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
-        v1 = self._model[word1] / np.linalg.norm(self._model[word1], 2)
-        v2 = self._model[word2] / np.linalg.norm(self._model[word2], 2)
+        v1 = self.word_vec(word1)
+        v2 = self.word_vec(word2)
+
+        v1 = v1 / np.linalg.norm(v1, 2)
+        v2 = v2 / np.linalg.norm(v2, 2)
 
         return np.dot(v1, v2)
 
     def may_construct_word_vec(self, word):
 
-        return word in self.get_vocab()
+        return self.word_vec(word) is not None
 
 
 

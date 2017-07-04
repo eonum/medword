@@ -8,6 +8,7 @@ import json
 import preprocess as pp
 import embedding_fasttext
 import embedding_word2vec
+import embedding_word2vec_composite
 import model_validation as mv
 
 # reload imported modules, as older versions are cached (developing purpose)
@@ -91,6 +92,9 @@ if __name__ == '__main__':
 
     elif emb_method == 'word2vec':
         embedding = embedding_word2vec.EmbeddingWord2vec(config)
+
+    elif emb_method == 'word2vec-composite':
+        embedding = embedding_word2vec_composite.EmbeddingWord2vecComposite(config)
 
     else:
         print('embedding_algorithm (in config) must be "fasttext" or "word2vec"')

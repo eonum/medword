@@ -13,7 +13,26 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
-        return np.asarray(self._model.get_vector(word), dtype=np.float64)
+        if word in self._model.vocab_hash:
+            return self._model.get_vector(word)
+
+        end = len(word) - 1
+        vector = None
+
+        while word != '' and end > 0:
+            if word[:end] in self._model.vocab_hash:
+                print(word[:end])
+                if vector == None:
+                    vector = self._model.get_vector(word[:end])
+                else:
+                    vector = vector + self._model.get_vector(word[:end])
+                word = word[end:]
+                end = len(word)
+            else:
+                end -= 1
+
+
+        return vector
 
     def most_similar_n(self, word, topn=10):
         if not self._model:

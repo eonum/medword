@@ -18,7 +18,6 @@
     "tokenizer": "nst",
 
     "val_data_dir": "data/validation_data/",
-    "synonyms_numb_closest_vec": 40,
     "doesntfit_file": "german_doesntfit1.txt",
     "synonyms_file": "german_synonyms3.txt",
 

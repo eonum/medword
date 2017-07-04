@@ -141,9 +141,10 @@ def test_synonyms(embedding, file_src, n_closest_words):
         questions = f.read().splitlines()
 
         for q in questions:
-            tk_q = tokenizer.tokenize(q)
-            if len(tk_q) == 2:
-                tk_questions.append(tk_q)
+            synonyms = q.split(';')#tokenizer.tokenize(q)
+            synonyms = [" ".join(tokenizer.tokenize(synonym)) for synonym in synonyms]
+            if len(synonyms) == 2:
+                tk_questions.append(synonyms)
 
     vocab = embedding.get_vocab()
 

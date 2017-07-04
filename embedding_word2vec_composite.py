@@ -21,8 +21,7 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
 
         while word != '' and end > 0:
             if word[:end] in self._model.vocab_hash:
-                print(word[:end])
-                if vector == None:
+                if vector is None:
                     vector = self._model.get_vector(word[:end])
                 else:
                     vector = vector + self._model.get_vector(word[:end])
@@ -39,8 +38,12 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
             print("Model not defined. Train or load a model.")
             return ReferenceError
 
-        indexes, metrics = self._model.cosine(word, topn)
-        return self._model.generate_response(indexes, metrics).tolist()
+        word_vec = self.word_vec(word)
+        metrics = np.dot(self._model.vectors, word_vec.T)
+        indexes = np.argsort(metrics)[::-1][1:topn + 1]
+        best_metrics = metrics[indexes]
+
+        return self._model.generate_response(indexes, best_metrics).tolist()
 
 
     def analogy(self, positives, negatives, topn):

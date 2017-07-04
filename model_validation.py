@@ -130,7 +130,6 @@ def test_synonyms(embedding, file_src, n_closest_words):
     num_lines = sum(1 for line in open(file_src))
     num_questions = 0
     cos_sim_sum_synonyms = 0
-    num_right = 0
 
     tokenizer = pp.get_tokenizer(config)
 
@@ -141,9 +140,10 @@ def test_synonyms(embedding, file_src, n_closest_words):
         questions = f.read().splitlines()
 
         for q in questions:
-            tk_q = tokenizer.tokenize(q)
-            if len(tk_q) == 2:
-                tk_questions.append(tk_q)
+            synonyms = q.split(';')#tokenizer.tokenize(q)
+            synonyms = [" ".join(tokenizer.tokenize(synonym)) for synonym in synonyms]
+            if len(synonyms) == 2:
+                tk_questions.append(synonyms)
 
     vocab = embedding.get_vocab()
 
@@ -156,13 +156,6 @@ def test_synonyms(embedding, file_src, n_closest_words):
 
             w1 = tk_quest[0]
             w2 = tk_quest[1]
-
-            if w1 in [word for (word, cos_sim) in embedding.most_similar_n(w2, n_closest_words)]:
-                num_right += 1
-                #print(w1, "is in neighbourhood of ", w2)
-            if w2 in [word for (word, cos_sim) in embedding.most_similar_n(w1, n_closest_words)]:
-                num_right += 1
-                #print(w2, "is in neighbourhood of ", w1)
 
             cos_sim_sum_synonyms += embedding.similarity(w1, w2)
 
@@ -182,18 +175,15 @@ def test_synonyms(embedding, file_src, n_closest_words):
 
     # calculate result
     avg_cosine_similarity_synonyms = (cos_sim_sum_synonyms / num_questions) if num_questions>0 else 0.0
-    correct_matches = np.round(num_right/(2*np.float(num_questions))*100, 1) if num_questions>0 else 0.0
     coverage = np.round(num_questions/np.float(num_lines)*100, 1) if num_lines>0 else 0.0
 
     # log result
     print("\n*** Cosine-Similarity ***")
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))
-    print("\n*** Synonym Recognition ***")
+    print("\n*** Word Coverage ***")
     print("Synonyms: {0} pairs in input. {1} pairs after tokenization. {2} pairs in model-vocabulary.".format(str(num_lines), str(len(tk_questions)), str(num_questions)))
 
-    print("Synonyms correct:  {0}% ({1}/{2}), checked {3} closest embedding-vectors "
-          "per word.".format(str(correct_matches), str(num_right), str(2*num_questions), str(n_closest_words)))
     print("Synonyms coverage: {0}% ({1}/{2})\n".format(str(coverage), str(2*num_questions), str(2*num_lines), ))
 
 

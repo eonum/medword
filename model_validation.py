@@ -30,8 +30,7 @@ def validate_model(embedding, emb_model_dir, emb_model_fn):
     test_doesntfit(embedding, doesntfit_src)
 
     # test with synonyms
-    n_closest_words = config.config["synonyms_numb_closest_vec"]
-    test_synonyms(embedding, syn_file_src, n_closest_words)
+    test_synonyms(embedding, syn_file_src)
 
 
 #### Doesn't Fit Validation ####
@@ -111,7 +110,7 @@ def test_doesntfit(embedding, file_src):
 
 
 #### Synonyms Validation ####
-def test_synonyms(embedding, file_src, n_closest_words):
+def test_synonyms(embedding, file_src):
     """
     - tests all synonym-questions (lines) of file
     - a synonym-question is of the format "word_1 word_2"

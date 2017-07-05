@@ -1,5 +1,5 @@
 import numpy as np
-import word2vec as w2v
+import re
 from embedding_word2vec import EmbeddingWord2vec
 
 class EmbeddingWord2vecComposite(EmbeddingWord2vec):
@@ -16,20 +16,32 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
         if word in self._model.vocab_hash:
             return self._model.get_vector(word)
 
-        end = len(word) - 1
+
+
+        words = re.split(r'[-,?!:; {}()"\[" "\]"" "\n"/\\]', word)
         vector = None
 
-        while word != '' and end > 0: # TODO: crop at the beginning if nothing has been found. Or replace with dynamic programming / matrix based tokenization
-            if word[:end] in self._model.vocab_hash:
-                if vector is None:
-                    vector = self._model.get_vector(word[:end])
-                else:
-                    vector = vector + self._model.get_vector(word[:end])
-                word = word[end:]
-                end = len(word)
-            else:
-                end -= 1
+        for word in words:
+            end = len(word)
 
+            # TODO: Currently this algorithm is greedy.
+            # crop at the beginning if nothing has been found.
+            # Or replace with dynamic programming / matrix based tokenization
+
+            while word != '' and end > 0:
+                if word[:end] in self._model.vocab_hash:
+                    print(word[:end])
+                    if vector is None:
+                        vector = self._model.get_vector(word[:end])
+                    else:
+                        vector = vector + self._model.get_vector(word[:end])
+                    word = word[end:]
+                    end = len(word)
+                else:
+                    end -= 1
+
+        if vector is not None:
+            vector = vector / np.linalg.norm(vector)
 
         return vector
 
@@ -62,9 +74,6 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
 
         v1 = self.word_vec(word1)
         v2 = self.word_vec(word2)
-
-        v1 = v1 / np.linalg.norm(v1, 2)
-        v2 = v2 / np.linalg.norm(v2, 2)
 
         return np.dot(v1, v2)
 

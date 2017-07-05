@@ -181,7 +181,7 @@ def test_synonyms(embedding, file_src):
     print("Synonyms avg-cos-similarity (SACS):", avg_cosine_similarity_synonyms, "\nRandom avg-cos-similarity (RACS):", avg_cosine_similarity_rand_vec,
           "\nRatio SACS/RACS:", avg_cosine_similarity_synonyms/float(avg_cosine_similarity_rand_vec))
     print("\n*** Word Coverage ***")
-    print("Synonyms: {0} pairs in input. {1} pairs after tokenization. {2} pairs in model-vocabulary.".format(str(num_lines), str(len(tk_questions)), str(num_questions)))
+    print("Synonyms: {0} pairs in input. {1} pairs after tokenization. {2} pairs could be constructed from model-vocabulary.".format(str(num_lines), str(len(tk_questions)), str(num_questions)))
 
     print("Synonyms coverage: {0}% ({1}/{2})\n".format(str(coverage), str(2*num_questions), str(2*num_lines), ))
 

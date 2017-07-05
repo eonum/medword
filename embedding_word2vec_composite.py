@@ -30,7 +30,6 @@ class EmbeddingWord2vecComposite(EmbeddingWord2vec):
 
             while word != '' and end > 0:
                 if word[:end] in self._model.vocab_hash:
-                    print(word[:end])
                     if vector is None:
                         vector = self._model.get_vector(word[:end])
                     else:

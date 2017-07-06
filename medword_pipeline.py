@@ -93,7 +93,7 @@ if __name__ == '__main__':
     elif emb_method == 'word2vec':
         embedding = embedding_word2vec.EmbeddingWord2vec(config)
 
-    elif emb_method == 'word2vec-composite':
+    elif emb_method == 'word2vec-compound':
         embedding = embedding_word2vec_composite.EmbeddingWord2vecComposite(config)
 
     else:

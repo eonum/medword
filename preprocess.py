@@ -29,17 +29,11 @@ class TokenizerBase():
 
     def replace_umlauts(self, text):
         res = text
-        res = res.replace(u'ä', 'ae')
-        res = res.replace(u'ö', 'oe')
-        res = res.replace(u'ü', 'ue')
-        res = res.replace(u'Ä', 'Ae')
-        res = res.replace(u'Ö', 'Oe')
-        res = res.replace(u'Ü', 'Ue')
-        res = res.replace(u'ß', 'ss')
         return res
 
     def replace_special_chars(self, text):
         res = text
+        res = res.replace(u'ß', 'ss')
         res = res.replace(u'—', '-')
         return res
 
@@ -128,10 +122,10 @@ class NonStemmingTokenizer(TokenizerBase):
         words = [re.sub('[' + "".join(punctuation) + ']', '', x) for x in words]
 
         # process words
-        words = [x.lower() for x in words]
+        #words = [x.lower() for x in words]
 
         # remove everything except
-        words = [re.sub(r'[^a-z0-9%éèà=><†@≥≤\s\-\/]', '', x) for x in words]
+        words = [re.sub(r'[^A-Za-z0-9%ÜÖÄÉÈÀéèàöäü=><†@≥≤\s\-\/]', '', x) for x in words]
 
         # remove stopwords TODO activate maybe
         # words = [x for x in words if x not in stop_words]

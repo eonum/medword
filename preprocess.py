@@ -122,10 +122,10 @@ class NonStemmingTokenizer(TokenizerBase):
         words = [re.sub('[' + "".join(punctuation) + ']', '', x) for x in words]
 
         # process words
-        #words = [x.lower() for x in words]
+        words = [x.lower() for x in words]
 
         # remove everything except
-        words = [re.sub(r'[^A-Za-z0-9%ÜÖÄÉÈÀéèàöäü=><†@≥≤\s\-\/]', '', x) for x in words]
+        words = [re.sub(r'[^a-z0-9%ÜÖÄÉÈÀéèàöäü=><†@≥≤\s\-\/]', '', x) for x in words]
 
         # remove stopwords TODO activate maybe
         # words = [x for x in words if x not in stop_words]

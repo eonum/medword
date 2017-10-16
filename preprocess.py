@@ -15,6 +15,7 @@ from nltk.stem.snowball import GermanStemmer
 import nltk
 import sys
 from nltk.corpus import stopwords
+import chardet
 
 
 def setup():
@@ -155,6 +156,7 @@ def get_tokens_from_file(file, tokenizer):
     reads file and returns a list of all ovserved tokens (stemmed)
     """
     file.seek(0)  # reset file iterator
+
     data = file.read()
     tokens = tokenizer.tokenize(data)
 
@@ -170,13 +172,26 @@ def tokens_from_dir(directory, tokenizer, train_file):
     tokenSet = set()
     total_tokens = 0
     n_files = 0
+    n_bad_encoding = 0
     # iterate over all .txt files
-    for dirpath, dirs, files in os.walk(directory):
+    for dirpath, dirs, files in os.walk(directory, followlinks=True):
         for filename in fnmatch.filter(files, '*.txt'):
             n_files += 1
             sys.stdout.write( "Reading File "+ str(n_files) + '\r')
 
-            with open(os.path.join(dirpath, filename), 'r') as file:
+            #try to find the encoding
+            encodingInfo = chardet.detect(open(os.path.join(dirpath, filename),
+                                   "rb").read())
+
+            # skip the file, if the encoding is unknown
+            encoding = encodingInfo['encoding'];
+            if (not encoding or encodingInfo['confidence'] < 0.8):
+                n_bad_encoding +=1
+                continue
+
+
+            with open(os.path.join(dirpath, filename), 'r', encoding=encoding) \
+                    as file:
                 # create tokens from each file
                 tokens = get_tokens_from_file(file, tokenizer)
 
@@ -198,9 +213,10 @@ def tokens_from_dir(directory, tokenizer, train_file):
 
                 file.close()
 
-
-    print("Found %d different tokens in %d articles, total training size: %d tokens."
-          % (len(tokenSet), n_files, total_tokens))
+    n_good_files = n_files - n_bad_encoding
+    print("Found %d different tokens in %d articles, total training size: "
+          "%d tokens." % (len(tokenSet), n_good_files , total_tokens))
+    print("%d files could not be decoded." % n_bad_encoding)
 
 
 def get_tokenizer(config):

@@ -126,7 +126,14 @@ dev_data/
 
 # configuration file
 /configuration.json
+configuration-ipython.json
 
 
 # LiClipse
 .project
+
+# ipython Notebooks, comment out if structural changes were made and push is
+# required
+/medword_pipeline_interactive.ipynb
+/validation_interactive.ipynb
+

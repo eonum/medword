@@ -139,8 +139,10 @@ def test_synonyms(embedding, file_src):
         questions = f.read().splitlines()
 
         for q in questions:
-            synonyms = q.split(';')#tokenizer.tokenize(q)
-            synonyms = [" ".join(tokenizer.tokenize(synonym)) for synonym in synonyms]
+            # synonyms = q.split(';')#tokenizer.tokenize(q)
+            # synonyms = [" ".join(tokenizer.tokenize(synonym)) for synonym in
+            #  synonyms]
+            synonyms = tokenizer.tokenize(q)
             if len(synonyms) == 2:
                 tk_questions.append(synonyms)
 

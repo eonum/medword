@@ -1,19 +1,19 @@
 {
     "running_mode": "develop",
-    "compute_new_data": false,
+    "compute_new_data": true,
     "train_new_model": true,
-    "run_validation": false,
+    "run_validation": true,
 
-    "embedding_method": "fasttext",
+    "embedding_method": "word2vec",
     "embedding_algorithm": "cbow",
 
     "train_data_filename": "train.txt",
-    "embedding_model_filename": "emb_model_ft.bin",
+    "embedding_model_filename": "emb_model_w2v.bin",
 
     "base_data_dir": "data/",
     "develop_base_data_dir": "dev_data/",
 
-    "embedding_vector_dim": 200,
+    "embedding_vector_dim": 150,
     "min_token_appearance": 5,
     "tokenizer": "nst",
 

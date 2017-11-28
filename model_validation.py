@@ -4,6 +4,7 @@ import os
 from random import randint
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import csv
 
 
 
@@ -30,7 +31,12 @@ def validate_model(embedding, emb_model_dir, emb_model_fn):
     test_doesntfit(embedding, doesntfit_src)
 
     # test with synonyms
-    test_synonyms(embedding, syn_file_src)
+    # TODO get better syn file (slow, contains many non-significant instances)
+    # test_synonyms(embedding, syn_file_src)
+
+    # test with human similarity TODO remove hardcoding
+    human_sim_file_src = 'data/validation_data/human_similarity.csv'
+    test_human_similarity(embedding, human_sim_file_src)
 
 
 #### Doesn't Fit Validation ####
@@ -186,6 +192,89 @@ def test_synonyms(embedding, file_src):
     print("Synonyms: {0} pairs in input. {1} pairs after tokenization. {2} pairs could be constructed from model-vocabulary.".format(str(num_lines), str(len(tk_questions)), str(num_questions)))
 
     print("Synonyms coverage: {0}% ({1}/{2})\n".format(str(coverage), str(2*num_questions), str(2*num_lines), ))
+
+
+def get_human_rating_deviation(embedding, word1, word2, human_similarity):
+    # compute deviation of human similarity from cosine similarity
+
+    # cosine similarity
+    cosine_similarity = embedding.similarity(word1, word2)
+
+    return np.abs(cosine_similarity - human_similarity)
+
+
+def test_human_similarity(embedding, file_src):
+    """
+    Compare cosine similarity of 2 word-vectors against a similarity value
+    based on human ratings.
+    Each line in the file contains two words and the similarity value,
+    separated by ':'.
+
+    The datasets were obtained by asking human subjects to assign a similarity
+    or relatedness judgment to a number of German word pairs.
+    https://www.ukp.tu-darmstadt.de/data/semantic-relatedness/german-relatedness-datasets/
+    """
+    config = embedding.config
+    tokenizer = pp.get_tokenizer(config)
+
+    vocab = embedding.get_vocab()
+    vocab_size = len(vocab)
+
+    # accumulate error and count test instances
+    summed_error = 0.0
+    n_test_instances = 0
+    n_skipped_instances = 0
+
+    summed_random_error = 0.0
+
+    # load file to lines
+    with open(file_src, 'r') as csvfile:
+        filereader = csv.reader(csvfile, delimiter=':',)
+        next(filereader)
+        # process line by line
+        for line in filereader:
+            n_test_instances += 1
+            
+            # split lines to instances
+            word1 = tokenizer.tokenize(line[0])[0]
+            word2 = tokenizer.tokenize(line[1])[0]
+
+            human_similarity = np.float32(line[2])
+
+            # check if both words are in vocab
+            if (word1 in embedding.get_vocab()
+                    and word2 in embedding.get_vocab()):
+                # add current deviation to error
+                deviation = get_human_rating_deviation(embedding, word1, word2,
+                                                       human_similarity)
+                summed_error += deviation
+
+                # get a random error for comparison
+                rand_word1 = vocab[randint(0, vocab_size -1)]
+                rand_word2 = vocab[randint(0, vocab_size -1)]
+                random_dev = get_human_rating_deviation(embedding, rand_word1,
+                                                      rand_word2,
+                                                      human_similarity)
+                summed_random_error += random_dev
+            else:
+                n_skipped_instances += 1
+
+    # print results
+    print("\n*** Human-Similarity ***")
+    print("Number of instances: {0}, skipped: {1}"
+          .format(str(n_test_instances), str(n_skipped_instances)))
+
+    # check whether we found any valid test instance
+    n_processed_instances = n_test_instances - n_skipped_instances
+    if (n_processed_instances == 0):
+        print("Error: No instance could be computed with this model.")
+    else:
+        mean_error = summed_error / n_processed_instances
+        random_error = summed_random_error / n_processed_instances
+
+        print("random error: {0}, mean error: {1}"
+              .format(str(random_error), str(mean_error)))
+
 
 
 #### Visualization ####

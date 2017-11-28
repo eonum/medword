@@ -11,10 +11,10 @@ import os
 import json
 from subprocess import PIPE, Popen
 import word2vec as w2v
-from embedding_base import EmbeddingBaseAbstract
+from embedding_base import EmbeddingAbstractBase
 
 
-class EmbeddingWord2vec(EmbeddingBaseAbstract):
+class EmbeddingWord2vec(EmbeddingAbstractBase):
 
     def __init__(self, config):
         self._model = None

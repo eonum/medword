@@ -11,12 +11,12 @@ import fasttext
 import numpy as np
 import os
 import json
-from embedding_base import EmbeddingBaseAbstract
+from embedding_base import EmbeddingAbstractBase
 from gensim.models import KeyedVectors
 import multiprocessing
 
 
-class EmbeddingFasttext(EmbeddingBaseAbstract):
+class EmbeddingFasttext(EmbeddingAbstractBase):
 
     def __init__(self, config):
         self._model = None

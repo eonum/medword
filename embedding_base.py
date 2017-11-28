@@ -6,7 +6,7 @@ the class EmbeddingBaseAbstract and implement all its functions
 
 from abc import ABC, abstractmethod
 
-class EmbeddingBaseAbstract(ABC):
+class EmbeddingAbstractBase(ABC):
 
     @abstractmethod
     def __init__(self, config):

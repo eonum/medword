@@ -64,7 +64,9 @@ def run_pipeline(embedding):
     if (COMPUTE_NEW_TRAIN_DATA):
         print("\n*** COMPUTING TRAIN DATA *** ")
         raw_data_dir = os.path.join(train_data_dir, 'raw_data/')
-        pp.create_train_data(train_data_src, raw_data_dir, config)
+        #pp.create_train_data(train_data_src, raw_data_dir, config)
+        pp.create_intersection_train_data(train_data_src, train_data_dir,
+                                          config)
         print("*** END COMPUTING TRAIN DATA *** ")
 
 

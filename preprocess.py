@@ -163,10 +163,12 @@ def get_tokens_from_file(file, tokenizer):
     return tokens
 
 
-def tokens_from_dir(directory, tokenizer, train_file=None):
+def tokens_from_dir(directory, tokenizer, train_file=None, valid_tokens=None):
     """
     - creates tokens using all *.txt files of any subdirectory of 'directory'
-    - stores them in train_file
+    - if train_file is specified, store all tokens in train_file
+    - if valid_tokens is specified, only keep the tokens that occur in
+      valid_tokens
     """
     print("Read and tokenize data from directory '", directory, "'")
     tokenSet = set()
@@ -194,6 +196,10 @@ def tokens_from_dir(directory, tokenizer, train_file=None):
                     as file:
                 # create tokens from each file
                 tokens = get_tokens_from_file(file, tokenizer)
+
+                if(valid_tokens is not None):
+                    # remove all tokens, which are not in valid_tokens
+                    tokens = [t for t in tokens if t in valid_tokens]
 
                 if (train_file is not None):
                     # append token_string to train_file
@@ -256,7 +262,7 @@ def create_train_data(train_data_src, raw_data_dir, config):
     train_file.close()
 
 
-def create_intersection_train_data(train_data_src, raw_data_dir, config):
+def create_intersection_train_data(train_data_src, train_data_dir, config):
     # remove irregular tokens from pdf-data and webcrawler-data:
     #
     # 1) generate vocab set for pdf-data, webcrawler-data, wiki_dumps
@@ -269,11 +275,13 @@ def create_intersection_train_data(train_data_src, raw_data_dir, config):
     # Verification of relevance:
     # - check words which are not in intersection manually
     # - ...
+    raw_data_dir = os.path.join(train_data_dir, 'raw_data/')
 
     # assumes the following sub-folders
     pdf_folder = os.path.join(raw_data_dir, 'medical_books_plaintxt/')
     crawler_folder = os.path.join(raw_data_dir, 'medtextcollector_output/')
     wiki_folder = os.path.join(raw_data_dir, 'wiki_dumps_txts/')
+    codes_folder = os.path.join(raw_data_dir, 'ICD_CHOP/')
 
     print("Creating new intersection training data. ")
 
@@ -283,9 +291,6 @@ def create_intersection_train_data(train_data_src, raw_data_dir, config):
     print("Using this Tokenizer: ",
           str(tokenizer.__class__).split('.')[1].split("'")[0])
 
-    # open training data file
-    # train_file = open(train_data_src, 'w+')
-
     # Create tokens from raw_data_dir and store them in train_file
     pdf_token_set = tokens_from_dir(pdf_folder, tokenizer)
     crawler_token_set = tokens_from_dir(crawler_folder, tokenizer)
@@ -294,16 +299,14 @@ def create_intersection_train_data(train_data_src, raw_data_dir, config):
     # compute intersection
     intersection_token_set = pdf_token_set & crawler_token_set & wiki_token_set
 
+
+    ### DEBUG & INSPECTION ###
     # compute remaining parts (for debug / inspection purpose)
     remain_pdf_token_set = pdf_token_set - intersection_token_set
     remain_crawler_token_set = crawler_token_set - intersection_token_set
     remain_wiki_token_set = wiki_token_set - intersection_token_set
 
-
-    # close training date file
-    # train_file.close()
-
-    # save sets
+    # save sets for inspection
     file_names = ['pdf_set', 'crawler_set', 'wiki_set', 'inter_set',
                   'pdf_excl', 'crawler_excl', 'wiki_excl']
     for i, data_set in enumerate([pdf_token_set, crawler_token_set,
@@ -312,13 +315,34 @@ def create_intersection_train_data(train_data_src, raw_data_dir, config):
                                   remain_crawler_token_set,
                                   remain_crawler_token_set]):
 
-        out_src = os.path.join(raw_data_dir, file_names[i] + '.txt')
+        out_src = os.path.join(train_data_dir, 'processed_data/' +
+                               file_names[i] + '.txt')
         with open(out_src, 'w') as file:
             file.writelines([item + '\n' for item in data_set])
 
+    ### END DEBUG & INSPECTION ###
 
+    # open training data file
+    train_file = open(train_data_src, 'w+')
+
+    # Create tokens from multiple dirs and append them to train_file
+    # only tokens included in valid_tokens are kept
+    directories = [pdf_folder, crawler_folder, wiki_folder]
+    for dir in directories:
+        tokens_from_dir(dir, tokenizer, train_file,
+                    valid_tokens=intersection_token_set)
+
+    # also add CHOP and ICD tokens to train_file but keep all (not only the ones
+    # that are in intersection_token_set)
+    tokens_from_dir(codes_folder, tokenizer, train_file, valid_tokens=None)
+
+
+    # close training date file
+    train_file.close()
+
+
+    ### DEBUG & INSPECTION ###
     return pdf_token_set, crawler_token_set, wiki_token_set, \
            intersection_token_set, remain_pdf_token_set, \
            remain_crawler_token_set, remain_wiki_token_set
-
-
+    ### END DEBUG & INSPECTION ###

@@ -163,7 +163,7 @@ def get_tokens_from_file(file, tokenizer):
     return tokens
 
 
-def tokens_from_dir(directory, tokenizer, train_file):
+def tokens_from_dir(directory, tokenizer, train_file=None):
     """
     - creates tokens using all *.txt files of any subdirectory of 'directory'
     - stores them in train_file
@@ -195,17 +195,18 @@ def tokens_from_dir(directory, tokenizer, train_file):
                 # create tokens from each file
                 tokens = get_tokens_from_file(file, tokenizer)
 
-                # append token_string to train_file
-                token_string = " ".join(tokens) + " \n"
+                if (train_file is not None):
+                    # append token_string to train_file
+                    token_string = " ".join(tokens) + " \n"
 
-                # replace multiple whitespaces with a single one
-                token_string = re.sub('\s+', ' ', token_string)
+                    # replace multiple whitespaces with a single one
+                    token_string = re.sub('\s+', ' ', token_string)
 
-                # save in utf-8 format
-                # TODO remove illegal non-utf-8 symbols
-                # (read and write should decode and encode in utf-8 by standard in python3,
-                # the once appeared error could not be reconstructed)
-                train_file.write(token_string)
+                    # save in utf-8 format
+                    # TODO remove illegal non-utf-8 symbols
+                    # (read and write should decode and encode in utf-8 by standard in python3,
+                    # the once appeared error could not be reconstructed)
+                    train_file.write(token_string)
 
                 # build set of all tokens and count total number of found tokens
                 tokenSet |= set(tokens)
@@ -217,6 +218,8 @@ def tokens_from_dir(directory, tokenizer, train_file):
     print("Found %d different tokens in %d articles, total training size: "
           "%d tokens." % (len(tokenSet), n_good_files , total_tokens))
     print("%d files could not be decoded." % n_bad_encoding)
+
+    return tokenSet;
 
 
 def get_tokenizer(config):
@@ -251,4 +254,71 @@ def create_train_data(train_data_src, raw_data_dir, config):
 
     # close training date file
     train_file.close()
+
+
+def create_intersection_train_data(train_data_src, raw_data_dir, config):
+    # remove irregular tokens from pdf-data and webcrawler-data:
+    #
+    # 1) generate vocab set for pdf-data, webcrawler-data, wiki_dumps
+    #    independently
+    # 2) keep only vocab, which occurs in all sets (intersection-set)
+    # 3) when creating the train data, remove words which are not in
+    #    intersection set by a TBD-strategy (e.g. remove only word, remove line,
+    #    remove sentence ...)
+
+    # Verification of relevance:
+    # - check words which are not in intersection manually
+    # - ...
+
+    # assumes the following sub-folders
+    pdf_folder = os.path.join(raw_data_dir, 'medical_books_plaintxt/')
+    crawler_folder = os.path.join(raw_data_dir, 'medtextcollector_output/')
+    wiki_folder = os.path.join(raw_data_dir, 'wiki_dumps_txts/')
+
+    print("Creating new intersection training data. ")
+
+    ### Create needed token-datastructures
+    tokenizer = get_tokenizer(config)
+
+    print("Using this Tokenizer: ",
+          str(tokenizer.__class__).split('.')[1].split("'")[0])
+
+    # open training data file
+    # train_file = open(train_data_src, 'w+')
+
+    # Create tokens from raw_data_dir and store them in train_file
+    pdf_token_set = tokens_from_dir(pdf_folder, tokenizer)
+    crawler_token_set = tokens_from_dir(crawler_folder, tokenizer)
+    wiki_token_set = tokens_from_dir(wiki_folder, tokenizer)
+
+    # compute intersection
+    intersection_token_set = pdf_token_set & crawler_token_set & wiki_token_set
+
+    # compute remaining parts (for debug / inspection purpose)
+    remain_pdf_token_set = pdf_token_set - intersection_token_set
+    remain_crawler_token_set = crawler_token_set - intersection_token_set
+    remain_wiki_token_set = wiki_token_set - intersection_token_set
+
+
+    # close training date file
+    # train_file.close()
+
+    # save sets
+    file_names = ['pdf_set', 'crawler_set', 'wiki_set', 'inter_set',
+                  'pdf_excl', 'crawler_excl', 'wiki_excl']
+    for i, data_set in enumerate([pdf_token_set, crawler_token_set,
+                                  wiki_token_set, intersection_token_set,
+                                  remain_pdf_token_set,
+                                  remain_crawler_token_set,
+                                  remain_crawler_token_set]):
+
+        out_src = os.path.join(raw_data_dir, file_names[i] + '.txt')
+        with open(out_src, 'w') as file:
+            file.writelines([item + '\n' for item in data_set])
+
+
+    return pdf_token_set, crawler_token_set, wiki_token_set, \
+           intersection_token_set, remain_pdf_token_set, \
+           remain_crawler_token_set, remain_wiki_token_set
+
 

@@ -165,8 +165,19 @@ def get_tokens_from_file(file, tokenizer):
 
 def tokens_from_dir(directory, tokenizer, train_file=None, valid_tokens=None):
     """
-    - creates tokens using all *.txt files of any subdirectory of 'directory'
-    - if train_file is specified, store all tokens in train_file
+    creates tokens using all *.txt files of any subdirectory of 'directory'
+
+    :param train_file: if train_file is specified, store all tokens in
+                       train_file
+    :param valid_tokens: if valid_tokens is specified, only keep the tokens that
+                         occur in valid_tokens
+    :return: tokenized vocabulary, or: set of all tokens found in any file
+             (note: not the tokenized content, only a set of all tokens)
+    """
+
+    """"
+    
+    - 
     - if valid_tokens is specified, only keep the tokens that occur in
       valid_tokens
     """
@@ -263,18 +274,20 @@ def create_train_data(train_data_src, raw_data_dir, config):
 
 
 def create_intersection_train_data(train_data_src, train_data_dir, config):
-    # remove irregular tokens from pdf-data and webcrawler-data:
-    #
-    # 1) generate vocab set for pdf-data, webcrawler-data, wiki_dumps
-    #    independently
-    # 2) keep only vocab, which occurs in all sets (intersection-set)
-    # 3) when creating the train data, remove words which are not in
-    #    intersection set by a TBD-strategy (e.g. remove only word, remove line,
-    #    remove sentence ...)
+    """
+    # remove irregular tokens from pdf-data webcrawler-data and wiki_dumps:
+
+    1) generate vocab set for pdf-data, webcrawler-data, wiki_dumps
+       independently
+    2) keep only vocab, which occurs in all sets (intersection-set)
+    3) when creating the train data, remove words which are not in
+       intersection set by a TBD-strategy (e.g. remove only word, remove line,
+       remove sentence ...)
 
     # Verification of relevance:
     # - check words which are not in intersection manually
     # - ...
+    """
     raw_data_dir = os.path.join(train_data_dir, 'raw_data/')
 
     # assumes the following sub-folders
@@ -297,7 +310,8 @@ def create_intersection_train_data(train_data_src, train_data_dir, config):
     wiki_token_set = tokens_from_dir(wiki_folder, tokenizer)
 
     # compute intersection
-    intersection_token_set = pdf_token_set & crawler_token_set & wiki_token_set
+    #TODO maybe test with intersection of PDF and crawler data only
+    intersection_token_set = pdf_token_set & (crawler_token_set | wiki_token_set)
 
 
     ### DEBUG & INSPECTION ###
@@ -313,13 +327,12 @@ def create_intersection_train_data(train_data_src, train_data_dir, config):
                                   wiki_token_set, intersection_token_set,
                                   remain_pdf_token_set,
                                   remain_crawler_token_set,
-                                  remain_crawler_token_set]):
+                                  remain_wiki_token_set]):
 
         out_src = os.path.join(train_data_dir, 'processed_data/' +
                                file_names[i] + '.txt')
         with open(out_src, 'w') as file:
             file.writelines([item + '\n' for item in data_set])
-
     ### END DEBUG & INSPECTION ###
 
     # open training data file
@@ -341,8 +354,53 @@ def create_intersection_train_data(train_data_src, train_data_dir, config):
     train_file.close()
 
 
-    ### DEBUG & INSPECTION ###
-    return pdf_token_set, crawler_token_set, wiki_token_set, \
-           intersection_token_set, remain_pdf_token_set, \
-           remain_crawler_token_set, remain_wiki_token_set
-    ### END DEBUG & INSPECTION ###
+    # ### DEBUG & INSPECTION ###
+    # return pdf_token_set, crawler_token_set, wiki_token_set, \
+    #        intersection_token_set, remain_pdf_token_set, \
+    #        remain_crawler_token_set, remain_wiki_token_set
+    # ### END DEBUG & INSPECTION ###
+
+
+def load_intersection_data():
+    """
+    Load token sets from different text-sources (PDFs, web-crawler, wiki-dumps)
+    to analyse them.
+    Function used only for Debug / Analysis.
+    """
+    # TODO replace hardcoding for further development
+    dir = 'data/train_data/processed_data/'
+    pdf_src = os.path.join(dir, 'pdf_set.txt')
+    crawler_src = os.path.join(dir, 'crawler_set.txt')
+    wiki_src = os.path.join(dir, 'wiki_set.txt')
+
+    # load sets
+    files = [pdf_src, crawler_src, wiki_src]
+    sets = []
+    for file in files:
+        with open(file) as f:
+            temp = [line[:-1] for line in f]
+            sets.append(set(temp))
+
+
+    [pdf_token_set, crawler_token_set, wiki_token_set] = sets
+    intersection_token_set = pdf_token_set & (wiki_token_set | crawler_token_set)
+    # compute remaining parts (for debug / inspection purpose)
+    remain_pdf_token_set = pdf_token_set - intersection_token_set
+    remain_crawler_token_set = crawler_token_set - intersection_token_set
+    remain_wiki_token_set = wiki_token_set - intersection_token_set
+
+    # save sets for inspection
+    file_names = ['pdf_set', 'crawler_set', 'wiki_set', 'inter_set',
+                  'pdf_excl', 'crawler_excl', 'wiki_excl']
+    for i, data_set in enumerate([pdf_token_set, crawler_token_set,
+                                  wiki_token_set, intersection_token_set,
+                                  remain_pdf_token_set,
+                                  remain_crawler_token_set,
+                                  remain_wiki_token_set]):
+        out_src = os.path.join(dir, 'new_inters',
+                               file_names[i] + '.txt')
+        with open(out_src, 'w') as file:
+            file.writelines([item + '\n' for item in data_set])
+
+
+    return sets[0], sets[1], sets[2], sets[3], intersection_token_set
